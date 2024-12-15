@@ -1,5 +1,5 @@
 const Encore = require('@symfony/webpack-encore');
-const { VueLoaderPlugin } = require('vue-loader'); // Добавьте эту строку
+const { VueLoaderPlugin } = require('vue-loader');
 
 if (!Encore.isRuntimeEnvironmentConfigured()) {
     Encore.configureRuntimeEnvironment(process.env.NODE_ENV || 'dev');
