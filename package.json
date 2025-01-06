@@ -16,10 +16,13 @@
     "scripts": {
         "dev-server": "encore dev-server",
         "dev": "encore dev",
-        "watch": "encore dev --watch",
+        "watch": "encore production --watch",
         "build": "encore production --progress"
     },
     "dependencies": {
+        "axios": "^1.7.9",
+        "typeface-open-sans": "^1.1.13",
+        "typeface-roboto": "^1.1.13",
         "vue": "^3.5.13"
     }
 }
