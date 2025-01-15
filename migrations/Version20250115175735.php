@@ -27,9 +27,9 @@ final class Version20250115175735 extends AbstractMigration
         $this->addSql('CREATE INDEX IDX_D3B83589A76ED395 ON answer_user (user_id)');
         $this->addSql('CREATE TABLE course (id SERIAL NOT NULL, name VARCHAR(255) NOT NULL, description VARCHAR(255) DEFAULT NULL, code VARCHAR(255) NOT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE UNIQUE INDEX UNIQ_169E6FB977153098 ON course (code)');
-        $this->addSql('CREATE TABLE coursep_user (id SERIAL NOT NULL, course_id INT NOT NULL, user_id BIGINT NOT NULL, PRIMARY KEY(id))');
-        $this->addSql('CREATE INDEX IDX_CFE71659591CC992 ON coursep_user (course_id)');
-        $this->addSql('CREATE INDEX IDX_CFE71659A76ED395 ON coursep_user (user_id)');
+        $this->addSql('CREATE TABLE course_user (id SERIAL NOT NULL, course_id INT NOT NULL, user_id BIGINT NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE INDEX IDX_CFE71659591CC992 ON course_user (course_id)');
+        $this->addSql('CREATE INDEX IDX_CFE71659A76ED395 ON course_user (user_id)');
         $this->addSql('CREATE TABLE lesson (id SERIAL NOT NULL, course_id INT NOT NULL, name VARCHAR(255) NOT NULL, description VARCHAR(255) DEFAULT NULL, hw_deadline TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL, file_path VARCHAR(255) DEFAULT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE UNIQUE INDEX UNIQ_F87474F382A8E361 ON lesson (file_path)');
         $this->addSql('CREATE INDEX IDX_F87474F3591CC992 ON lesson (course_id)');
@@ -47,8 +47,8 @@ final class Version20250115175735 extends AbstractMigration
         $this->addSql('ALTER TABLE answer ADD CONSTRAINT FK_DADD4A251E27F6BF FOREIGN KEY (question_id) REFERENCES question (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE answer_user ADD CONSTRAINT FK_D3B83589AA334807 FOREIGN KEY (answer_id) REFERENCES answer (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE answer_user ADD CONSTRAINT FK_D3B83589A76ED395 FOREIGN KEY (user_id) REFERENCES "user" (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
-        $this->addSql('ALTER TABLE coursep_user ADD CONSTRAINT FK_CFE71659591CC992 FOREIGN KEY (course_id) REFERENCES course (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
-        $this->addSql('ALTER TABLE coursep_user ADD CONSTRAINT FK_CFE71659A76ED395 FOREIGN KEY (user_id) REFERENCES "user" (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
+        $this->addSql('ALTER TABLE course_user ADD CONSTRAINT FK_CFE71659591CC992 FOREIGN KEY (course_id) REFERENCES course (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
+        $this->addSql('ALTER TABLE course_user ADD CONSTRAINT FK_CFE71659A76ED395 FOREIGN KEY (user_id) REFERENCES "user" (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE lesson ADD CONSTRAINT FK_F87474F3591CC992 FOREIGN KEY (course_id) REFERENCES course (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE lesson_user ADD CONSTRAINT FK_B4E2102DA76ED395 FOREIGN KEY (user_id) REFERENCES "user" (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE lesson_user ADD CONSTRAINT FK_B4E2102DCDF80196 FOREIGN KEY (lesson_id) REFERENCES lesson (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
@@ -65,8 +65,8 @@ final class Version20250115175735 extends AbstractMigration
         $this->addSql('ALTER TABLE answer DROP CONSTRAINT FK_DADD4A251E27F6BF');
         $this->addSql('ALTER TABLE answer_user DROP CONSTRAINT FK_D3B83589AA334807');
         $this->addSql('ALTER TABLE answer_user DROP CONSTRAINT FK_D3B83589A76ED395');
-        $this->addSql('ALTER TABLE coursep_user DROP CONSTRAINT FK_CFE71659591CC992');
-        $this->addSql('ALTER TABLE coursep_user DROP CONSTRAINT FK_CFE71659A76ED395');
+        $this->addSql('ALTER TABLE course_user DROP CONSTRAINT FK_CFE71659591CC992');
+        $this->addSql('ALTER TABLE course_user DROP CONSTRAINT FK_CFE71659A76ED395');
         $this->addSql('ALTER TABLE lesson DROP CONSTRAINT FK_F87474F3591CC992');
         $this->addSql('ALTER TABLE lesson_user DROP CONSTRAINT FK_B4E2102DA76ED395');
         $this->addSql('ALTER TABLE lesson_user DROP CONSTRAINT FK_B4E2102DCDF80196');
@@ -77,7 +77,7 @@ final class Version20250115175735 extends AbstractMigration
         $this->addSql('DROP TABLE answer');
         $this->addSql('DROP TABLE answer_user');
         $this->addSql('DROP TABLE course');
-        $this->addSql('DROP TABLE coursep_user');
+        $this->addSql('DROP TABLE course_user');
         $this->addSql('DROP TABLE lesson');
         $this->addSql('DROP TABLE lesson_user');
         $this->addSql('DROP TABLE question');
