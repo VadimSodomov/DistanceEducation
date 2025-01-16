@@ -3,5 +3,6 @@ body {
     background-color: white;
     margin: 0;
     font-weight: 400;
-    font-size: 14px;
+    font-size: 13px;
+    font-family: Roboto, sans-serif
 }
