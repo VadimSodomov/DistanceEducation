@@ -43,12 +43,12 @@ class Question
         return $this;
     }
 
-    public function getTest(): ?test
+    public function getTest(): ?Test
     {
         return $this->test;
     }
 
-    public function setTest(?test $test): static
+    public function setTest(?Test $test): static
     {
         $this->test = $test;
 

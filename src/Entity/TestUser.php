@@ -38,24 +38,24 @@ class TestUser
         return $this->id;
     }
 
-    public function getTest(): ?test
+    public function getTest(): ?Test
     {
         return $this->test;
     }
 
-    public function setTest(?test $test): static
+    public function setTest(?Test $test): static
     {
         $this->test = $test;
 
         return $this;
     }
 
-    public function getUser(): ?user
+    public function getUser(): ?User
     {
         return $this->user;
     }
 
-    public function setUser(?user $user): static
+    public function setUser(?User $user): static
     {
         $this->user = $user;
 

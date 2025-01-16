@@ -38,24 +38,24 @@ class LessonUser
         return $this->id;
     }
 
-    public function getUser(): ?user
+    public function getUser(): ?User
     {
         return $this->user;
     }
 
-    public function setUser(?user $user): static
+    public function setUser(?User $user): static
     {
         $this->user = $user;
 
         return $this;
     }
 
-    public function getLesson(): ?lesson
+    public function getLesson(): ?Lesson
     {
         return $this->lesson;
     }
 
-    public function setLesson(?lesson $lesson): static
+    public function setLesson(?Lesson $lesson): static
     {
         $this->lesson = $lesson;
 

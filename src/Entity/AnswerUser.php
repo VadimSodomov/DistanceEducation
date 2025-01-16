@@ -32,24 +32,24 @@ class AnswerUser
         return $this->id;
     }
 
-    public function getAnswer(): ?answer
+    public function getAnswer(): ?Answer
     {
         return $this->answer;
     }
 
-    public function setAnswer(?answer $answer): static
+    public function setAnswer(?Answer $answer): static
     {
         $this->answer = $answer;
 
         return $this;
     }
 
-    public function getUser(): ?user
+    public function getUser(): ?User
     {
         return $this->user;
     }
 
-    public function setUser(?user $user): static
+    public function setUser(?User $user): static
     {
         $this->user = $user;
 

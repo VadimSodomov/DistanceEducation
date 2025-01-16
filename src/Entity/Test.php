@@ -43,12 +43,12 @@ class Test
         return $this;
     }
 
-    public function getLesson(): ?lesson
+    public function getLesson(): ?Lesson
     {
         return $this->lesson;
     }
 
-    public function setLesson(lesson $lesson): static
+    public function setLesson(Lesson $lesson): static
     {
         $this->lesson = $lesson;
 
