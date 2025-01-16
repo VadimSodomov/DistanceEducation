@@ -18,11 +18,11 @@ class TestUser
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?test $test = null;
+    private ?Test $test = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?user $user = null;
+    private ?User $user = null;
 
     #[ORM\Column(type: Types::FLOAT, nullable: true)]
     private ?float $score = null;

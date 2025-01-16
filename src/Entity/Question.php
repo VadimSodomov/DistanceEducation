@@ -21,7 +21,7 @@ class Question
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?test $test = null;
+    private ?Test $test = null;
 
     #[ORM\Column(type: Types::INTEGER)]
     private ?int $type = null;

@@ -18,11 +18,11 @@ class LessonUser
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?user $user = null;
+    private ?User $user = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?lesson $lesson = null;
+    private ?Lesson $lesson = null;
 
     #[ORM\Column(type: Types::INTEGER, nullable: true)]
     private ?int $score = null;

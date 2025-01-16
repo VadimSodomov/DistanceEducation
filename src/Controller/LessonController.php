@@ -10,7 +10,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class LessonController extends AbstractController
 {
-    #[Route('/lesson', name: 'app_lesson')]
+    #[Route('/lesson', name: 'app_lesson', methods: ['GET'])]
     public function index(): Response
     {
         return $this->render('lesson/index.html.twig', [
