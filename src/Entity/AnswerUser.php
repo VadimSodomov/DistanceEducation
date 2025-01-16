@@ -1,16 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\AnswerUserRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\DBAL\Types\Types;
 
 #[ORM\Entity(repositoryClass: AnswerUserRepository::class)]
 class AnswerUser
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: Types::BIGINT)]
     private ?int $id = null;
 
     #[ORM\ManyToOne]
@@ -21,7 +24,7 @@ class AnswerUser
     #[ORM\JoinColumn(nullable: false)]
     private ?user $user = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $name = null;
 
     public function getId(): ?int

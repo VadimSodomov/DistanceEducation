@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\TestUserRepository;
@@ -11,7 +13,7 @@ class TestUser
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: Types::BIGINT)]
     private ?int $id = null;
 
     #[ORM\ManyToOne]
@@ -22,7 +24,7 @@ class TestUser
     #[ORM\JoinColumn(nullable: false)]
     private ?user $user = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: Types::FLOAT, nullable: true)]
     private ?float $score = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]

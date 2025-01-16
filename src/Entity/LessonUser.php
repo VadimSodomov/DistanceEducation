@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\LessonUserRepository;
@@ -11,7 +13,7 @@ class LessonUser
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: Types::BIGINT)]
     private ?int $id = null;
 
     #[ORM\ManyToOne]
@@ -22,10 +24,10 @@ class LessonUser
     #[ORM\JoinColumn(nullable: false)]
     private ?lesson $lesson = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: Types::INTEGER, nullable: true)]
     private ?int $score = null;
 
-    #[ORM\Column(length: 255, unique: true)]
+    #[ORM\Column(type: Types::TEXT, unique: true)]
     private ?string $file_path = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
