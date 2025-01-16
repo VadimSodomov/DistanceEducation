@@ -64,11 +64,11 @@ export default {
 .container {
   display: flex;
   height: 100vh; /* Высота контейнера равна высоте экрана */
+  width: 20%;
 }
 
 .sidebar {
   position: relative;
-  width: 20%;
   background-color: whitesmoke;
   color: #2e2d2d;
   padding: 20px;

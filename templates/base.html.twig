@@ -14,9 +14,6 @@
         {% endblock %}
     </head>
     <body>
-        <div id="sidebar"></div> <!-- Боковое меню, общее для всех страниц -->
-        <div class="content">
-            {% block body %}{% endblock %}
-        </div>
+        {% block body %}{% endblock %}
     </body>
 </html>
