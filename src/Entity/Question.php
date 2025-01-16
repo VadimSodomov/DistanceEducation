@@ -4,15 +4,12 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use App\Repository\UserRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
+use App\Repository\QuestionRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\DBAL\Types\Types;
 
-#[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ORM\Table(name: '`user`')]
-class User
+#[ORM\Entity(repositoryClass: QuestionRepository::class)]
+class Question
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -22,14 +19,12 @@ class User
     #[ORM\Column(type: Types::TEXT)]
     private ?string $name = null;
 
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?AuthUser $authUser = null;
+    private ?Test $test = null;
 
-    public function __construct()
-    {
-        $this->courses = new ArrayCollection();
-    }
+    #[ORM\Column(type: Types::INTEGER)]
+    private ?int $type = null;
 
     public function getId(): ?int
     {
@@ -48,14 +43,26 @@ class User
         return $this;
     }
 
-    public function getAuthUser(): ?AuthUser
+    public function getTest(): ?Test
     {
-        return $this->authUser;
+        return $this->test;
     }
 
-    public function setAuthUser(AuthUser $authUser): static
+    public function setTest(?Test $test): static
     {
-        $this->authUser = $authUser;
+        $this->test = $test;
+
+        return $this;
+    }
+
+    public function getType(): ?int
+    {
+        return $this->type;
+    }
+
+    public function setType(int $type): static
+    {
+        $this->type = $type;
 
         return $this;
     }

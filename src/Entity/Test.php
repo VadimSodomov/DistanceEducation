@@ -4,15 +4,12 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use App\Repository\UserRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use App\Repository\TestRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ORM\Table(name: '`user`')]
-class User
+#[ORM\Entity(repositoryClass: TestRepository::class)]
+class Test
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -24,12 +21,10 @@ class User
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
-    private ?AuthUser $authUser = null;
+    private ?Lesson $lesson = null;
 
-    public function __construct()
-    {
-        $this->courses = new ArrayCollection();
-    }
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $deadline = null;
 
     public function getId(): ?int
     {
@@ -48,14 +43,26 @@ class User
         return $this;
     }
 
-    public function getAuthUser(): ?AuthUser
+    public function getLesson(): ?Lesson
     {
-        return $this->authUser;
+        return $this->lesson;
     }
 
-    public function setAuthUser(AuthUser $authUser): static
+    public function setLesson(Lesson $lesson): static
     {
-        $this->authUser = $authUser;
+        $this->lesson = $lesson;
+
+        return $this;
+    }
+
+    public function getDeadline(): ?\DateTimeInterface
+    {
+        return $this->deadline;
+    }
+
+    public function setDeadline(?\DateTimeInterface $deadline): static
+    {
+        $this->deadline = $deadline;
 
         return $this;
     }

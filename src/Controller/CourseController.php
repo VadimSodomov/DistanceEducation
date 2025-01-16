@@ -8,11 +8,13 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-class MainPageController extends AbstractController
+class CourseController extends AbstractController
 {
-    #[Route('/', name: 'app_main_page', methods: ['GET'])]
+    #[Route('/course', name: 'app_course', methods: ['GET'])]
     public function index(): Response
     {
-        return $this->render('main_page/index.html.twig');
+        return $this->render('course/index.html.twig', [
+            'controller_name' => 'CourseController',
+        ]);
     }
 }
