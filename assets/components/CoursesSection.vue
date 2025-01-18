@@ -47,15 +47,15 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding: 12px 16px;
-  background-color: #d6d7d8;
-  color: #2e2d2d;
-  border-radius: 5px;
+  background-color: #6D7CF2;
+  color: white;
+  border-radius: 14px;
   cursor: pointer;
   transition: background-color 0.3s;
 }
 
 .section-header:hover {
-  background-color: #c3c3c8;
+  background-color: #8C99FF;
 }
 
 .arrow {
@@ -73,16 +73,16 @@ export default {
 }
 
 .courses-list a {
-  color: #2e2d2d;
+  color: white;
   text-decoration: none;
   display: block;
   padding: 5px 10px;
-  border-radius: 5px;
-  background-color: #dedfdf;
+  border-radius: 14px;
+  background-color: #6D7CF2;
   transition: background-color 0.3s;
 }
 
 .courses-list a:hover {
-  background-color: #d1d1d1;
+  background-color: #8C99FF;
 }
 </style>
