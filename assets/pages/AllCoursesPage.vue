@@ -1,22 +1,29 @@
 <template>
-  <div class="all-courses">
-    <h1>Все курсы</h1>
-    <div class="courses-grid">
-      <CourseCard
-          v-for="course in courses"
-          :key="course.id"
-          :course="course"
-      />
+  <div class="page-container">
+    <Sidebar/>
+    <div class="page">
+      <h1 class="page-title">Все курсы</h1>
+      <div class="courses-grid">
+        <CourseCard
+            v-for="course in courses"
+            :key="course.id"
+            :course="course"
+        />
+      </div>
     </div>
   </div>
+
+
 </template>
 
 <script>
 import CourseCard from "../components/CourseCard.vue";
+import Sidebar from "../components/Sidebar.vue";
 
 export default {
   components: {
-    CourseCard
+    CourseCard,
+    Sidebar
   },
   data() {
     // Пока для примера
@@ -53,20 +60,6 @@ export default {
 </script>
 
 <style scoped>
-.all-courses {
-  height: 100vh;
-  padding: 20px;
-  margin: 15px;
-  background: white;
-  border-radius: 5px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-}
-
-h1{
-  margin: 10px 0 5px 10px;
-  color: #2e2d2d;
-}
-
 .courses-grid {
   display: flex;
   flex-wrap: wrap;

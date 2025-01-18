@@ -3,5 +3,32 @@ body {
     margin: 0;
     font-weight: 400;
     font-size: 13px;
-    font-family: Roboto, sans-serif
+    font-family: Roboto, sans-serif;
+}
+
+.page-container {
+    display: flex;
+
+    .page {
+        display: flex;
+        height: calc(100vh - 70px);
+        width: 100%;
+        padding: 20px;
+        margin: 15px;
+        background: white;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        flex-direction: column;
+
+        .page-title {
+            margin: 10px 0 5px 10px;
+            color: #2e2d2d;
+        }
+    }
+}
+
+.content {
+    flex: 1;
+    width: 80%;
+    min-width: 300px;
 }
