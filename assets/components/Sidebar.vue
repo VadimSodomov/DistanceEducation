@@ -2,7 +2,7 @@
   <div class="container">
     <div class="sidebar">
       <div class="sidebar-header">
-        <h3>Название/лого</h3>
+        <h3>Наш сайтик)</h3>
       </div>
       <ul class="sidebar-menu">
         <li>
