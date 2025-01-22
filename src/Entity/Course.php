@@ -25,6 +25,7 @@ class Course
     #[ORM\Column(type: Types::TEXT, unique: true)]
     private ?string $code = null;
 
+    #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $author = null;
 
@@ -94,5 +95,14 @@ class Course
         $this->created_at = $created_at;
 
         return $this;
+    }
+
+    public function update(User $author, string $name, ?string $description, string $code): void
+    {
+        $this->author = $author;
+        $this->name = $name;
+        $this->description = $description;
+        $this->code = $code;
+        $this->created_at = new \DateTime('now', new \DateTimeZone('Europe/Moscow'));
     }
 }

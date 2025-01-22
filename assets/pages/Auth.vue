@@ -37,7 +37,7 @@
             required
         />
         <button class="auth-btn" @click="handleLogin" :disabled="isLoading || disabledBtn">
-          {{ isLoading ? 'Загрузка...' : 'Войти' }}
+          {{ isLoading ? 'Загрузка...' : (isEntry ?  'Войти' : 'Создать аккаунт') }}
         </button>
         <div v-if="errorMessage" class="error-message">
           {{ errorMessage }}
@@ -49,6 +49,7 @@
 
 <script>
 import axios from 'axios';
+import { getErrorMessage } from '../utils/ErrorHelper';
 
 export default {
   data() {
@@ -94,9 +95,9 @@ export default {
         }
         window.location.href = '/';
       } catch (error) {
-        if (error.response && error.response.data && error.response.data.detail) {
-          this.errorMessage = error.response.data.detail;
-        } else {
+        this.errorMessage = getErrorMessage(error)
+        if (this.errorMessage === null)
+        {
           if (this.isEntry)
             this.errorMessage = 'Неверный логин или пароль';
           else
