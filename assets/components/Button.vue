@@ -38,21 +38,21 @@ export default {
 <style scoped>
 .button {
   padding: 10px 20px;
-  background-color: #d6d7d8;
-  color: #2e2d2d;
+  background-color: #6D7CF2;
+  color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 14px;
   cursor: pointer;
   font-size: 14px;
   transition: background-color 0.3s;
 }
 
 .button:hover {
-  background-color: #c3c3c8;
+  background-color: #8C99FF;
 }
 
 .button-disabled {
-  background-color: #d6d7d8;
+  background-color: #ABAFCD;
   cursor: not-allowed;
 }
 

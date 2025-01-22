@@ -8,9 +8,15 @@ importers:
 
   .:
     dependencies:
+      '@fortawesome/fontawesome-free':
+        specifier: ^6.7.2
+        version: 6.7.2
       axios:
         specifier: ^1.7.9
         version: 1.7.9
+      tippy.js:
+        specifier: ^6.3.7
+        version: 6.3.7
       typeface-open-sans:
         specifier: ^1.1.13
         version: 1.1.13
@@ -29,7 +35,7 @@ importers:
         version: 7.26.0(@babel/core@7.26.0)
       '@symfony/webpack-encore':
         specifier: ^5.0.0
-        version: 5.0.1(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(@vue/compiler-sfc@3.5.13)(postcss@8.4.49)(vue-loader@17.4.2(@vue/compiler-sfc@3.5.13)(vue@3.5.13)(webpack@5.97.1(webpack-cli@5.1.4)))(vue@3.5.13)(webpack-cli@5.1.4(webpack@5.97.1))(webpack-notifier@1.15.0)(webpack@5.97.1(webpack-cli@5.1.4))
+        version: 5.0.1(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(@vue/compiler-sfc@3.5.13)(postcss@8.4.49)(vue-loader@17.4.2(@vue/compiler-sfc@3.5.13)(vue@3.5.13)(webpack@5.97.1))(vue@3.5.13)(webpack-cli@5.1.4)(webpack-notifier@1.15.0)(webpack@5.97.1)
       core-js:
         specifier: ^3.38.0
         version: 3.39.0
@@ -38,7 +44,7 @@ importers:
         version: 0.13.11
       vue-loader:
         specifier: ^17.4.2
-        version: 17.4.2(@vue/compiler-sfc@3.5.13)(vue@3.5.13)(webpack@5.97.1(webpack-cli@5.1.4))
+        version: 17.4.2(@vue/compiler-sfc@3.5.13)(vue@3.5.13)(webpack@5.97.1)
       vue-template-compiler:
         specifier: ^2.7.16
         version: 2.7.16
@@ -547,6 +553,10 @@ packages:
     resolution: {integrity: sha512-dBVuXR082gk3jsFp7Rd/JI4kytwGHecnCoTtXFb7DB6CNHp4rg5k1bhg0nWdLGLnOV71lmDzGQaLMy8iPLY0pw==}
     engines: {node: '>=10.0.0'}
 
+  '@fortawesome/fontawesome-free@6.7.2':
+    resolution: {integrity: sha512-JUOtgFW6k9u4Y+xeIaEiLr3+cjoUPiAuLXoyKOJSia6Duzb7pq+A76P9ZdPDoAoxHdHzq6gE9/jKBGXlZT8FbA==}
+    engines: {node: '>=6'}
+
   '@jest/schemas@29.6.3':
     resolution: {integrity: sha512-mo5j5X+jIZmJQveBKeS/clAueipV7KgiX1vMgCxam1RNYiqE1w62n0/tJJnHtjW8ZHcQco5gY85jA3mi0L+nSA==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
@@ -581,6 +591,9 @@ packages:
     engines: {node: '>=14.18.0', npm: '>=5.0.0'}
     peerDependencies:
       webpack: ^2.0.0 || ^3.0.0 || ^4.0.0 || ^5.0.0
+
+  '@popperjs/core@2.11.8':
+    resolution: {integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==}
 
   '@sinclair/typebox@0.27.8':
     resolution: {integrity: sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==}
@@ -1870,6 +1883,9 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
+  tippy.js@6.3.7:
+    resolution: {integrity: sha512-E1d3oP2emgJ9dRQZdf3Kkn0qJgI6ZLpyS5z6ZkY1DF3kaQaBsGZsndEpHwx+eC+tYM41HaSNvNtLx8tU57FzTQ==}
+
   tmp@0.2.3:
     resolution: {integrity: sha512-nZD7m9iCPC5g0pYmcaxogYKggSfLsdxl8of3Q/oIbqCqLLIO9IAF0GWjX1z9NZRHPiXv8Wex4yDCaZsgEw0Y8w==}
     engines: {node: '>=14.14'}
@@ -2655,6 +2671,8 @@ snapshots:
 
   '@discoveryjs/json-ext@0.5.7': {}
 
+  '@fortawesome/fontawesome-free@6.7.2': {}
+
   '@jest/schemas@29.6.3':
     dependencies:
       '@sinclair/typebox': 0.27.8
@@ -2690,7 +2708,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  '@nuxt/friendly-errors-webpack-plugin@2.6.0(webpack@5.97.1(webpack-cli@5.1.4))':
+  '@nuxt/friendly-errors-webpack-plugin@2.6.0(webpack@5.97.1)':
     dependencies:
       chalk: 2.4.2
       consola: 3.2.3
@@ -2698,25 +2716,27 @@ snapshots:
       string-width: 4.2.3
       webpack: 5.97.1(webpack-cli@5.1.4)
 
+  '@popperjs/core@2.11.8': {}
+
   '@sinclair/typebox@0.27.8': {}
 
-  '@symfony/webpack-encore@5.0.1(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(@vue/compiler-sfc@3.5.13)(postcss@8.4.49)(vue-loader@17.4.2(@vue/compiler-sfc@3.5.13)(vue@3.5.13)(webpack@5.97.1(webpack-cli@5.1.4)))(vue@3.5.13)(webpack-cli@5.1.4(webpack@5.97.1))(webpack-notifier@1.15.0)(webpack@5.97.1(webpack-cli@5.1.4))':
+  '@symfony/webpack-encore@5.0.1(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(@vue/compiler-sfc@3.5.13)(postcss@8.4.49)(vue-loader@17.4.2(@vue/compiler-sfc@3.5.13)(vue@3.5.13)(webpack@5.97.1))(vue@3.5.13)(webpack-cli@5.1.4)(webpack-notifier@1.15.0)(webpack@5.97.1)':
     dependencies:
       '@babel/core': 7.26.0
       '@babel/preset-env': 7.26.0(@babel/core@7.26.0)
-      '@nuxt/friendly-errors-webpack-plugin': 2.6.0(webpack@5.97.1(webpack-cli@5.1.4))
-      babel-loader: 9.2.1(@babel/core@7.26.0)(webpack@5.97.1(webpack-cli@5.1.4))
-      css-loader: 7.1.2(webpack@5.97.1(webpack-cli@5.1.4))
-      css-minimizer-webpack-plugin: 7.0.0(webpack@5.97.1(webpack-cli@5.1.4))
+      '@nuxt/friendly-errors-webpack-plugin': 2.6.0(webpack@5.97.1)
+      babel-loader: 9.2.1(@babel/core@7.26.0)(webpack@5.97.1)
+      css-loader: 7.1.2(webpack@5.97.1)
+      css-minimizer-webpack-plugin: 7.0.0(webpack@5.97.1)
       fastest-levenshtein: 1.0.16
-      mini-css-extract-plugin: 2.9.2(webpack@5.97.1(webpack-cli@5.1.4))
+      mini-css-extract-plugin: 2.9.2(webpack@5.97.1)
       picocolors: 1.1.1
       pretty-error: 4.0.0
       resolve-url-loader: 5.0.0
       semver: 7.6.3
-      style-loader: 3.3.4(webpack@5.97.1(webpack-cli@5.1.4))
+      style-loader: 3.3.4(webpack@5.97.1)
       tapable: 2.2.1
-      terser-webpack-plugin: 5.3.10(webpack@5.97.1(webpack-cli@5.1.4))
+      terser-webpack-plugin: 5.3.10(webpack@5.97.1)
       tmp: 0.2.3
       webpack: 5.97.1(webpack-cli@5.1.4)
       webpack-cli: 5.1.4(webpack@5.97.1)
@@ -2725,7 +2745,7 @@ snapshots:
       '@vue/compiler-sfc': 3.5.13
       postcss: 8.4.49
       vue: 3.5.13
-      vue-loader: 17.4.2(@vue/compiler-sfc@3.5.13)(vue@3.5.13)(webpack@5.97.1(webpack-cli@5.1.4))
+      vue-loader: 17.4.2(@vue/compiler-sfc@3.5.13)(vue@3.5.13)(webpack@5.97.1)
       webpack-notifier: 1.15.0
     transitivePeerDependencies:
       - '@parcel/css'
@@ -2904,17 +2924,17 @@ snapshots:
       '@webassemblyjs/ast': 1.14.1
       '@xtuc/long': 4.2.2
 
-  '@webpack-cli/configtest@2.1.1(webpack-cli@5.1.4(webpack@5.97.1))(webpack@5.97.1(webpack-cli@5.1.4))':
+  '@webpack-cli/configtest@2.1.1(webpack-cli@5.1.4)(webpack@5.97.1)':
     dependencies:
       webpack: 5.97.1(webpack-cli@5.1.4)
       webpack-cli: 5.1.4(webpack@5.97.1)
 
-  '@webpack-cli/info@2.0.2(webpack-cli@5.1.4(webpack@5.97.1))(webpack@5.97.1(webpack-cli@5.1.4))':
+  '@webpack-cli/info@2.0.2(webpack-cli@5.1.4)(webpack@5.97.1)':
     dependencies:
       webpack: 5.97.1(webpack-cli@5.1.4)
       webpack-cli: 5.1.4(webpack@5.97.1)
 
-  '@webpack-cli/serve@2.0.5(webpack-cli@5.1.4(webpack@5.97.1))(webpack@5.97.1(webpack-cli@5.1.4))':
+  '@webpack-cli/serve@2.0.5(webpack-cli@5.1.4)(webpack@5.97.1)':
     dependencies:
       webpack: 5.97.1(webpack-cli@5.1.4)
       webpack-cli: 5.1.4(webpack@5.97.1)
@@ -2977,7 +2997,7 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  babel-loader@9.2.1(@babel/core@7.26.0)(webpack@5.97.1(webpack-cli@5.1.4)):
+  babel-loader@9.2.1(@babel/core@7.26.0)(webpack@5.97.1):
     dependencies:
       '@babel/core': 7.26.0
       find-cache-dir: 4.0.0
@@ -3101,7 +3121,7 @@ snapshots:
     dependencies:
       postcss: 8.4.49
 
-  css-loader@7.1.2(webpack@5.97.1(webpack-cli@5.1.4)):
+  css-loader@7.1.2(webpack@5.97.1):
     dependencies:
       icss-utils: 5.1.0(postcss@8.4.49)
       postcss: 8.4.49
@@ -3114,7 +3134,7 @@ snapshots:
     optionalDependencies:
       webpack: 5.97.1(webpack-cli@5.1.4)
 
-  css-minimizer-webpack-plugin@7.0.0(webpack@5.97.1(webpack-cli@5.1.4)):
+  css-minimizer-webpack-plugin@7.0.0(webpack@5.97.1):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.25
       cssnano: 7.0.6(postcss@8.4.49)
@@ -3475,7 +3495,7 @@ snapshots:
     dependencies:
       mime-db: 1.52.0
 
-  mini-css-extract-plugin@2.9.2(webpack@5.97.1(webpack-cli@5.1.4)):
+  mini-css-extract-plugin@2.9.2(webpack@5.97.1):
     dependencies:
       schema-utils: 4.3.0
       tapable: 2.2.1
@@ -3862,7 +3882,7 @@ snapshots:
     dependencies:
       ansi-regex: 5.0.1
 
-  style-loader@3.3.4(webpack@5.97.1(webpack-cli@5.1.4)):
+  style-loader@3.3.4(webpack@5.97.1):
     dependencies:
       webpack: 5.97.1(webpack-cli@5.1.4)
 
@@ -3898,7 +3918,7 @@ snapshots:
 
   tapable@2.2.1: {}
 
-  terser-webpack-plugin@5.3.10(webpack@5.97.1(webpack-cli@5.1.4)):
+  terser-webpack-plugin@5.3.10(webpack@5.97.1):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.25
       jest-worker: 27.5.1
@@ -3913,6 +3933,10 @@ snapshots:
       acorn: 8.14.0
       commander: 2.20.3
       source-map-support: 0.5.21
+
+  tippy.js@6.3.7:
+    dependencies:
+      '@popperjs/core': 2.11.8
 
   tmp@0.2.3: {}
 
@@ -3949,7 +3973,7 @@ snapshots:
 
   uuid@8.3.2: {}
 
-  vue-loader@17.4.2(@vue/compiler-sfc@3.5.13)(vue@3.5.13)(webpack@5.97.1(webpack-cli@5.1.4)):
+  vue-loader@17.4.2(@vue/compiler-sfc@3.5.13)(vue@3.5.13)(webpack@5.97.1):
     dependencies:
       chalk: 4.1.2
       hash-sum: 2.0.0
@@ -3980,9 +4004,9 @@ snapshots:
   webpack-cli@5.1.4(webpack@5.97.1):
     dependencies:
       '@discoveryjs/json-ext': 0.5.7
-      '@webpack-cli/configtest': 2.1.1(webpack-cli@5.1.4(webpack@5.97.1))(webpack@5.97.1(webpack-cli@5.1.4))
-      '@webpack-cli/info': 2.0.2(webpack-cli@5.1.4(webpack@5.97.1))(webpack@5.97.1(webpack-cli@5.1.4))
-      '@webpack-cli/serve': 2.0.5(webpack-cli@5.1.4(webpack@5.97.1))(webpack@5.97.1(webpack-cli@5.1.4))
+      '@webpack-cli/configtest': 2.1.1(webpack-cli@5.1.4)(webpack@5.97.1)
+      '@webpack-cli/info': 2.0.2(webpack-cli@5.1.4)(webpack@5.97.1)
+      '@webpack-cli/serve': 2.0.5(webpack-cli@5.1.4)(webpack@5.97.1)
       colorette: 2.0.20
       commander: 10.0.1
       cross-spawn: 7.0.6
@@ -4029,7 +4053,7 @@ snapshots:
       neo-async: 2.6.2
       schema-utils: 3.3.0
       tapable: 2.2.1
-      terser-webpack-plugin: 5.3.10(webpack@5.97.1(webpack-cli@5.1.4))
+      terser-webpack-plugin: 5.3.10(webpack@5.97.1)
       watchpack: 2.4.2
       webpack-sources: 3.2.3
     optionalDependencies:
