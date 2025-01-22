@@ -1,5 +1,5 @@
 const Encore = require('@symfony/webpack-encore');
-const { VueLoaderPlugin } = require('vue-loader');
+const {VueLoaderPlugin} = require('vue-loader');
 
 if (!Encore.isRuntimeEnvironmentConfigured()) {
     Encore.configureRuntimeEnvironment(process.env.NODE_ENV || 'dev');
@@ -15,11 +15,13 @@ Encore
     .enableBuildNotifications()
     .enableSourceMaps(!Encore.isProduction())
     .enableVersioning(Encore.isProduction())
+    .enableSassLoader() // Включаем поддержку Sass/SCSS
     .configureBabelPresetEnv((config) => {
         config.useBuiltIns = 'usage';
         config.corejs = '3.38';
     })
-    .enableVueLoader(() => {}, { version: 3 })
+    .enableVueLoader(() => {
+    }, {version: 3})
     .addPlugin(new VueLoaderPlugin());
 
 module.exports = Encore.getWebpackConfig();
