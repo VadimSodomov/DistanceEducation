@@ -56,8 +56,10 @@ class CourseController extends AbstractController
 
         return $this->json(
             [
-                'coursesUser' => $coursesUser,
-                'coursesAuthored' => $coursesAuthored,
+                'data' => [
+                    'coursesUser' => $coursesUser,
+                    'coursesAuthored' => $coursesAuthored,
+                ],
             ],
             context: ['ignored_attributes' => ['lessons']]
         );
