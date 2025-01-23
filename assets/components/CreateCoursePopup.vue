@@ -22,10 +22,7 @@
       <div class="popup-content" v-else>
         <h2>Курс "{{ courseName }}" успешно создан!</h2>
         <div class="link-container">
-          <a :href="courseCode" target="_blank" class="course-code">Ссылка на курс</a>
-          <button @click="copyCode" class="copy-button">
-            <i class="fas fa-copy"></i>
-          </button>
+          <p class="course-code" @click="copyCode">Скопировать код</p>
         </div>
       </div>
     </div>
@@ -76,10 +73,10 @@ export default {
     copyCode() {
       navigator.clipboard.writeText(this.courseCode)
           .then(() => {
-            alert('Ссылка скопирована!');
+            alert('Код скопирован!');
           })
           .catch(() => {
-            alert('Не удалось скопировать ссылку.');
+            alert('Не удалось скопировать код.');
           });
     },
   },
@@ -176,6 +173,7 @@ export default {
       color: #6D7CF2;
       text-decoration: none;
       font-size: 16px;
+      cursor: pointer;
 
       &:hover {
         text-decoration: underline;
