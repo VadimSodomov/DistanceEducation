@@ -22,8 +22,8 @@
       <div class="popup-content" v-else>
         <h2>Курс "{{ courseName }}" успешно создан!</h2>
         <div class="link-container">
-          <a :href="courseLink" target="_blank" class="course-link">Ссылка на курс</a>
-          <button @click="copyLink" class="copy-button">
+          <a :href="courseCode" target="_blank" class="course-code">Ссылка на курс</a>
+          <button @click="copyCode" class="copy-button">
             <i class="fas fa-copy"></i>
           </button>
         </div>
@@ -42,7 +42,7 @@ export default {
       isCreated: false,
       courseName: '',
       courseDescription: '',
-      courseLink: '',
+      courseCode: '',
     }
   },
   props: {
@@ -55,7 +55,7 @@ export default {
     closePopup() {
       this.courseName = '';
       this.courseDescription = '';
-      this.courseLink = '';
+      this.courseCode = '';
       this.isCreated = false
       this.$emit('close');
     },
@@ -66,15 +66,15 @@ export default {
           description: this.courseDescription,
         });
         this.courseName = dataCourse.data.data.name
-        this.courseLink = dataCourse.data.data.link;
+        this.courseCode = dataCourse.data.data.code;
         this.isCreated = true;
       } catch (error) {
         alert(getErrorMessage(error));
       }
 
     },
-    copyLink() {
-      navigator.clipboard.writeText(this.courseLink)
+    copyCode() {
+      navigator.clipboard.writeText(this.courseCode)
           .then(() => {
             alert('Ссылка скопирована!');
           })
@@ -172,7 +172,7 @@ export default {
       margin-bottom: 10px;
     }
 
-    .course-link {
+    .course-code {
       color: #6D7CF2;
       text-decoration: none;
       font-size: 16px;

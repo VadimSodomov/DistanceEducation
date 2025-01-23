@@ -13,11 +13,14 @@ readonly class CourseDTO
     public string $name;
 
     #[Assert\Type(type: 'string')]
-    public string $description;
+    public ?string $description;
 
-    public function __construct(string $name, string $description)
+    public function __construct(string $name, ?string $description = null)
     {
         $this->name = trim($name);
-        $this->description = trim($description);
+
+        if ($description !== null) {
+            $this->description = trim($description);
+        }
     }
 }

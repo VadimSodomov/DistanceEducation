@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\CourseRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -30,7 +32,17 @@ class Course
     private ?User $author = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $created_at = null;
+    private ?\DateTimeInterface $createdAt = null;
+
+    #[ORM\OneToMany(targetEntity: Lesson::class, mappedBy: 'course')]
+    #[Orm\OrderBy(["createdAt" => "ASC"])]
+    private Collection $lessons;
+
+    public function __construct()
+    {
+        $this->lessons = new ArrayCollection();
+        $this->createdAt = new \DateTime('now', new \DateTimeZone('Europe/Moscow'));
+    }
 
     public function getId(): ?int
     {
@@ -87,22 +99,31 @@ class Course
 
     public function getCreatedAt(): ?\DateTimeInterface
     {
-        return $this->created_at;
+        return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeInterface $created_at): static
+    public function setCreatedAt(\DateTimeInterface $createdAt): static
     {
-        $this->created_at = $created_at;
+        $this->createdAt = $createdAt;
 
         return $this;
     }
 
-    public function update(User $author, string $name, ?string $description, string $code): void
+    public function getLessons(): Collection
+    {
+        return $this->lessons;
+    }
+
+    public function update(User $author, string $name, ?string $description=null, ?string $code=null): void
     {
         $this->author = $author;
         $this->name = $name;
-        $this->description = $description;
-        $this->code = $code;
-        $this->created_at = new \DateTime('now', new \DateTimeZone('Europe/Moscow'));
+
+        if ($description !== null) {
+            $this->description = $description;
+        }
+        if ($code !== null) {
+            $this->code = $code;
+        }
     }
 }
