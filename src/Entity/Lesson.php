@@ -7,6 +7,7 @@ namespace App\Entity;
 use App\Repository\LessonRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Ignore;
 
 #[ORM\Entity(repositoryClass: LessonRepository::class)]
 class Lesson
@@ -22,18 +23,19 @@ class Lesson
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
+    #[Ignore]
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?Course $course = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $hw_deadline = null;
+    private ?\DateTimeInterface $hwDeadline = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true, unique: true)]
-    private ?string $file_path = null;
+    private ?string $filePath = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $created_at = null;
+    private ?\DateTimeInterface $createdAt = null;
 
     public function getId(): ?int
     {
@@ -78,36 +80,36 @@ class Lesson
 
     public function getHwDeadline(): ?\DateTimeInterface
     {
-        return $this->hw_deadline;
+        return $this->hwDeadline;
     }
 
-    public function setHwDeadline(?\DateTimeInterface $hw_deadline): static
+    public function setHwDeadline(?\DateTimeInterface $hwDeadline): static
     {
-        $this->hw_deadline = $hw_deadline;
+        $this->hwDeadline = $hwDeadline;
 
         return $this;
     }
 
     public function getFilePath(): ?string
     {
-        return $this->file_path;
+        return $this->filePath;
     }
 
-    public function setFilePath(?string $file_path): static
+    public function setFilePath(?string $filePath): static
     {
-        $this->file_path = $file_path;
+        $this->filePath = $filePath;
 
         return $this;
     }
 
     public function getCreatedAt(): ?\DateTimeInterface
     {
-        return $this->created_at;
+        return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeInterface $created_at): static
+    public function setCreatedAt(\DateTimeInterface $createdAt): static
     {
-        $this->created_at = $created_at;
+        $this->createdAt = $createdAt;
 
         return $this;
     }

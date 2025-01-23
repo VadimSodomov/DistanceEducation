@@ -20,27 +20,26 @@
         <button class="create-course-btn" @click="saveCourse">Создать</button>
       </div>
       <div class="popup-content" v-else>
-        <h2>Курс {{ courseName }} успешно создан!</h2>
+        <h2>Курс "{{ courseName }}" успешно создан!</h2>
         <div class="link-container">
-          <a :href="courseLink" target="_blank" class="course-link">{{ courseLink }}</a>
-          <button @click="copyLink" class="copy-button">
-            <i class="fas fa-copy"></i>
-          </button>
+          <p class="course-code" @click="copyCode">Скопировать код</p>
         </div>
-        <p style="color: #ABAFCD">Ссылка для вступления на курс </p>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import axios from "axios";
+import {getErrorMessage} from '../utils/ErrorHelper';
+
 export default {
   data() {
     return {
       isCreated: false,
       courseName: '',
       courseDescription: '',
-      courseLink: '',
+      courseCode: '',
     }
   },
   props: {
@@ -51,20 +50,33 @@ export default {
   },
   methods: {
     closePopup() {
+      this.courseName = '';
+      this.courseDescription = '';
+      this.courseCode = '';
+      this.isCreated = false
       this.$emit('close');
     },
-    saveCourse() {
-      // еще отправим на бек, если успешно, значит сохранен
-      this.courseLink = `https://example.com/course/${this.courseName.toLowerCase().replace(/\s+/g, '-')}`;
-      this.isCreated = true;
+    async saveCourse() {
+      try {
+        const dataCourse = await axios.post('/course/create', {
+          name: this.courseName,
+          description: this.courseDescription,
+        });
+        this.courseName = dataCourse.data.data.name
+        this.courseCode = dataCourse.data.data.code;
+        this.isCreated = true;
+      } catch (error) {
+        alert(getErrorMessage(error));
+      }
+
     },
-    copyLink() {
-      navigator.clipboard.writeText(this.courseLink)
+    copyCode() {
+      navigator.clipboard.writeText(this.courseCode)
           .then(() => {
-            alert('Ссылка скопирована!');
+            alert('Код скопирован!');
           })
           .catch(() => {
-            alert('Не удалось скопировать ссылку.');
+            alert('Не удалось скопировать код.');
           });
     },
   },
@@ -89,6 +101,7 @@ export default {
     background-color: white;
     padding: 20px;
     width: auto;
+    max-width: 300px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     animation: fadeIn 0.3s ease-out;
     position: relative;
@@ -156,10 +169,11 @@ export default {
       margin-bottom: 10px;
     }
 
-    .course-link {
+    .course-code {
       color: #6D7CF2;
       text-decoration: none;
       font-size: 16px;
+      cursor: pointer;
 
       &:hover {
         text-decoration: underline;

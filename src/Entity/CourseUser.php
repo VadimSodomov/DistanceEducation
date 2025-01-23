@@ -52,4 +52,10 @@ class CourseUser
 
         return $this;
     }
+
+    public function update(User $user, Course $course): void
+    {
+        $this->user = $user;
+        $this->course = $course;
+    }
 }

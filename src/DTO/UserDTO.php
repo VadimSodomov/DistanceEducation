@@ -8,8 +8,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 readonly class UserDTO
 {
-    #[Assert\NotBlank]
-    #[Assert\Type('string')]
+    #[Assert\NotBlank(message: 'Имя пользователя не указано')]
+    #[Assert\Type(type: 'string')]
     public string $name;
 
     public function __construct(
