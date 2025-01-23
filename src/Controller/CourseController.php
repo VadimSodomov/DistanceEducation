@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\DTO\CourseDTO;
 use App\Entity\Course;
+use App\Entity\CourseUser;
 use App\Entity\User;
 use App\Helper\HashHelper;
 use App\Repository\CourseRepository;
@@ -93,6 +94,7 @@ class CourseController extends AbstractController
                 'data' => [
                     'course' => $course,
                     'isConnected' => $courseUser !== null,
+                    'isAuthor' => $course->getAuthor() === $this->user,
                 ]
             ]
         );
@@ -144,5 +146,48 @@ class CourseController extends AbstractController
         $this->entityManager->flush();
 
         return $this->json(['message' => 'Курс успешно удален']);
+    }
+
+    #[Route(
+        '/course/subscribe/{id}',
+        name: 'api_course_subscribe',
+        requirements: ['id' => '\d+'],
+        methods: ['POST'],
+        format: 'json'
+    )]
+    public function subscribe(Course $course): JsonResponse
+    {
+        if ($this->courseUserRepository->findOneBy(['course' => $course, 'user' => $this->user]) !== null) {
+            return $this->json(['message' => 'Вы уже подписаны на курс!']);
+        }
+
+        $courseUser = new CourseUser();
+        $courseUser->update($this->user, $course);
+
+        $this->entityManager->persist($courseUser);
+        $this->entityManager->flush();
+        return $this->json(['message' => 'Вы записались на курс!']);
+    }
+
+    #[Route(
+        '/course/unsubscribe/{id}',
+        name: 'api_course_unsubscribe',
+        requirements: ['id' => '\d+'],
+        methods: ['POST'],
+        format: 'json'
+    )]
+    public function unsubscribe(Course $course): JsonResponse
+    {
+        $coursesUser = $this->courseUserRepository->findBy(['course' => $course, 'user' => $this->user]);
+
+        if ($coursesUser === []) {
+            return $this->json(['message' => 'Вы не подписаны на курс']);
+        }
+
+        foreach ($coursesUser as $courseUser) {
+            $this->entityManager->remove($courseUser);
+        }
+        $this->entityManager->flush();
+        return $this->json(['message' => 'Вы отписались от курса']);
     }
 }

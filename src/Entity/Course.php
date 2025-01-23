@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Ignore;
 
 #[ORM\Entity(repositoryClass: CourseRepository::class)]
 class Course
@@ -34,13 +35,18 @@ class Course
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $createdAt = null;
 
-    #[ORM\OneToMany(targetEntity: Lesson::class, mappedBy: 'course')]
+    #[ORM\OneToMany(targetEntity: Lesson::class, mappedBy: 'course', cascade: ['persist', 'remove'])]
     #[Orm\OrderBy(["createdAt" => "ASC"])]
     private Collection $lessons;
+
+    #[Ignore]
+    #[ORM\OneToMany(targetEntity: CourseUser::class, mappedBy: 'course', cascade: ['persist', 'remove'])]
+    private Collection $courseUsers;
 
     public function __construct()
     {
         $this->lessons = new ArrayCollection();
+        $this->courseUsers = new ArrayCollection();
         $this->createdAt = new \DateTime('now', new \DateTimeZone('Europe/Moscow'));
     }
 
@@ -112,6 +118,11 @@ class Course
     public function getLessons(): Collection
     {
         return $this->lessons;
+    }
+
+    public function getCourseUsers(): Collection
+    {
+        return $this->courseUsers;
     }
 
     public function update(User $author, string $name, ?string $description=null, ?string $code=null): void
