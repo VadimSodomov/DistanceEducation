@@ -43,13 +43,19 @@ class CourseController extends AbstractController
         $this->user = $user;
     }
 
-    #[Route('/', name: 'app_course_index', methods: ['GET'])]
+    #[Route('/', name: 'app_index', methods: ['GET'])]
     public function index(): Response
     {
         return $this->render('main_page/index.html.twig');
     }
 
-    #[Route('/course/all', name: 'api_course_all', methods: ['GET'], format: 'json')]
+    #[Route('/course', name: 'app_course_index', methods: ['GET'])]
+    public function renderCourse(): Response
+    {
+        return $this->render('course/index.html.twig');
+    }
+
+    #[Route('api/course/all', name: 'api_course_all', methods: ['GET'], format: 'json')]
     public function getAll(): JsonResponse
     {
         $coursesUser = $this->courseUserRepository->findBy(['user' => $this->user]);
@@ -66,7 +72,7 @@ class CourseController extends AbstractController
         );
     }
 
-    #[Route('/course', name: 'api_course_get_one', methods: ['GET'], format: 'json')]
+    #[Route('api/course', name: 'api_course_get_one', methods: ['GET'], format: 'json')]
     public function getOne(
         #[MapQueryParameter] ?int    $id,
         #[MapQueryParameter] ?string $code,
@@ -100,7 +106,7 @@ class CourseController extends AbstractController
         );
     }
 
-    #[Route('/course/create', name: 'api_course_create', methods: ['POST'], format: 'json')]
+    #[Route('api/course/create', name: 'api_course_create', methods: ['POST'], format: 'json')]
     public function create(#[MapRequestPayload] CourseDTO $courseDTO): JsonResponse
     {
         $code = HashHelper::getHash($courseDTO->name);
@@ -115,7 +121,7 @@ class CourseController extends AbstractController
     }
 
     #[Route(
-        '/course/edit/{id}',
+        'api/course/edit/{id}',
         name: 'api_course_edit',
         requirements: ['id' => '\d+'],
         methods: ['POST'],
@@ -134,7 +140,7 @@ class CourseController extends AbstractController
     }
 
     #[Route(
-        '/course/delete/{id}',
+        'api/course/delete/{id}',
         name: 'api_course_delete',
         requirements: ['id' => '\d+'],
         methods: ['POST'],
@@ -149,7 +155,7 @@ class CourseController extends AbstractController
     }
 
     #[Route(
-        '/course/subscribe/{id}',
+        'api/course/subscribe/{id}',
         name: 'api_course_subscribe',
         requirements: ['id' => '\d+'],
         methods: ['POST'],
@@ -170,7 +176,7 @@ class CourseController extends AbstractController
     }
 
     #[Route(
-        '/course/unsubscribe/{id}',
+        'api/course/unsubscribe/{id}',
         name: 'api_course_unsubscribe',
         requirements: ['id' => '\d+'],
         methods: ['POST'],
