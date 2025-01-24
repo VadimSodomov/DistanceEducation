@@ -1,6 +1,6 @@
 <template>
   <div class="page-container">
-    <Sidebar/>
+    <Sidebar :studentCourses="coursesUser" :teacherCourses="coursesAuthored" />
     <div class="page">
       <h1 class="page-title">Курсы</h1>
       <div class="courses-page-menu-container">
@@ -33,6 +33,7 @@
             v-for="course in filteredCourses"
             :key="course.id"
             :course="course"
+            :course-url="generateCourseUrl(course.id)"
         />
       </div>
 
@@ -44,6 +45,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 import CourseCard from "../components/CourseCard.vue";
 import Sidebar from "../components/Sidebar.vue";
 import CreateCoursePopup from "../components/CreateCoursePopup.vue";
@@ -55,52 +57,51 @@ export default {
     CreateCoursePopup
   },
   data() {
-    // Пока для примера
-    // 1 - курсы, на которые польз подписан, 2 - созданные курсы
     return {
       filterType: null,
       isPopupOpen: false,
-      courses: [
-        {
-          id: 1,
-          type: 1,
-          name: 'Курс по Vue.js',
-          author: 'Иван Иванов',
-          description: 'Изучите основы Vue.js и создайте свои первые приложения.',
-        },
-        {
-          id: 2,
-          type: 1,
-          name: 'Курс по React',
-          author: 'Петр Петров',
-          description: 'Освойте React и создавайте современные веб-приложения.',
-        },
-        {
-          id: 3,
-          type: 2,
-          name: 'Курс по Angular',
-          author: 'Я',
-          description: 'Погрузитесь в мир Angular и создавайте мощные приложения.',
-        },
-        {
-          id: 4,
-          type: 2,
-          name: 'Курс по Node.js',
-          author: 'Я',
-          description: 'Научитесь создавать серверные приложения на Node.js.',
-        },
-      ],
+      courses: [],
+      coursesUser: [],
+      coursesAuthored: [],
     };
   },
   computed: {
     filteredCourses() {
       if (this.filterType === null) {
         return this.courses;
+      } else if (this.filterType === 1) {
+        return this.coursesUser;
+      } else if (this.filterType === 2) {
+        return this.coursesAuthored;
       }
-      return this.courses.filter(course => course.type === this.filterType);
+      return [];
     }
   },
   methods: {
+    async fetchCourses() {
+      try {
+        const response = await axios.get('api/course/all');
+        // Извлекаем курсы из CourseUser
+        const coursesUser = response.data.data.coursesUser.map(courseUser => courseUser.course);
+
+        // Курсы, созданные пользователем
+        const coursesAuthored = response.data.data.coursesAuthored;
+
+        // Объединяем оба списка курсов
+        this.coursesUser = coursesUser;
+        this.coursesAuthored = coursesAuthored;
+        this.courses = [...coursesUser, ...coursesAuthored];
+
+        console.log('Данные с бэкэнда:', response.data);
+        console.log('Курсы из CourseUser:', coursesUser);
+        console.log('Курсы, созданные пользователем:', coursesAuthored);
+      } catch (error) {
+        alert(getErrorMessage(error));
+      }
+    },
+    generateCourseUrl(courseId) {
+      return `/course?id=${courseId}`; // Генерация URL на основе ID курса
+    },
     setFilter(type) {
       this.filterType = type;
     },
@@ -110,7 +111,10 @@ export default {
     closePopup() {
       this.isPopupOpen = false;
     },
-  }
+  },
+  async created() {
+    await this.fetchCourses();
+  },
 };
 </script>
 

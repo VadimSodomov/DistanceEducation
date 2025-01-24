@@ -2,7 +2,7 @@
   <div class="container">
     <div class="sidebar">
       <div class="sidebar-header">
-        <h3>Наш сайтик)</h3>
+        <h2>Наш сайтик)</h2>
       </div>
       <ul class="sidebar-menu">
         <li>
@@ -43,17 +43,19 @@ export default {
     CoursesSection,
     Button
   },
+  props: {
+    studentCourses: {
+      type: Array,
+      default: () => [],
+    },
+    teacherCourses: {
+      type: Array,
+      default: () => [],
+    },
+  },
   data() {
     return {
-      username: 'Имя пользователя',
-      studentCourses: [
-        { id: 1, name: 'Курс 1', link: '/course/1' },
-        { id: 2, name: 'Курс 2', link: '/course/2' },
-      ],
-      teacherCourses: [
-        { id: 3, name: 'Курс A', link: '/course/A' },
-        { id: 4, name: 'Курс B', link: '/course/B' },
-      ],
+      username: 'Имя пользователя'
     };
   },
   mounted() {
@@ -63,29 +65,16 @@ export default {
   },
   methods: {
     ToMainPage() {
-      alert('Кнопка нажата!');
+      window.location.href = '/';
     },
     async logout() {
       try {
-        // Отправляем POST-запрос на /logout
-        const response = await fetch('/logout', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-          },
-        });
-
-        if (response.ok) {
-          window.location.href = '/login';
-        } else {
-          alert('Ошибка при выходе из системы');
-        }
+        window.location.href = '/logout';
       } catch (error) {
-        console.error('Ошибка:', error);
         alert('Ошибка при выходе из системы');
       }
     },
+
   }
 };
 </script>

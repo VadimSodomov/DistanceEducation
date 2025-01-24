@@ -3,8 +3,8 @@
     <!-- Верхняя часть карточки (30% высоты) -->
     <div class="course-card-top">
       <div class="course-info">
-        <a href="#" class="course-title">{{ course.name }}</a>
-        <p class="course-author">{{ course.author }}</p>
+        <a :href="courseUrl" class="course-title">{{ course.name }}</a>
+        <p class="course-author">{{ course.author.name }}</p>
       </div>
         <button class="leave-course-button" @click="leaveCourse" ref="tooltip">
           <i class="fas fa-sign-out-alt"></i> <!-- Иконка для покидания курса -->
@@ -28,6 +28,10 @@ export default {
       type: Object,
       required: true,
     },
+    courseUrl: {
+      type: String,
+      required: true,
+    },
   },
   mounted() {
     tippy(this.$refs.tooltip, {
@@ -37,7 +41,7 @@ export default {
   methods: {
     leaveCourse() {
       alert(`Вы покинули курс: ${this.course.name}`);
-    },
+    }
   },
 };
 </script>
