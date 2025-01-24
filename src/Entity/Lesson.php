@@ -8,6 +8,8 @@ use App\Repository\LessonRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Ignore;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity(repositoryClass: LessonRepository::class)]
 class Lesson
@@ -36,6 +38,17 @@ class Lesson
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $createdAt = null;
+
+    #[Ignore]
+    #[ORM\OneToMany(targetEntity: LessonUser::class, mappedBy: 'lesson', cascade: ['persist', 'remove'])]
+    private Collection $lessonUser;
+
+    public function __construct()
+    {
+        $this->createdAt = new \DateTime('now', new \DateTimeZone('Europe/Moscow'));
+        $this->lessonUser = new ArrayCollection();
+    }
+
 
     public function getId(): ?int
     {
@@ -112,5 +125,22 @@ class Lesson
         $this->createdAt = $createdAt;
 
         return $this;
+    }
+
+    public function getLessonUser(): Collection
+    {
+        return $this->lessonUser;
+    }
+    
+    public function update(string $name, Course $course, ?string $description=null, ?\DateTimeInterface $hwDeadline): void
+    {
+        $this->name = $name;
+        $this->course = $course;
+        if ($description !== null) {
+            $this->description = $description;
+        }
+        if ($hwDeadline !== null) {
+            $this->hwDeadline = $hwDeadline;
+        }
     }
 }
