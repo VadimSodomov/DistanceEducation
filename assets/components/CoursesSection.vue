@@ -78,11 +78,12 @@ export default {
   display: block;
   padding: 5px 10px;
   border-radius: 14px;
-  background-color: #6D7CF2;
+  background-color: rgba(109, 124, 242, 0.8);
   transition: background-color 0.3s;
 }
 
 .courses-list a:hover {
-  background-color: #8C99FF;
+  background-color: #a1acff;
+  cursor: pointer;
 }
 </style>

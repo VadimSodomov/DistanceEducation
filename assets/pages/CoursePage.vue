@@ -1,6 +1,6 @@
 <template>
   <div class="page-container">
-    <Sidebar/>
+    <Sidebar :studentCourses="coursesUser" :teacherCourses="coursesAuthored" />
     <div class="page">
         <div class="course-header">
           <h1 class="page-title">{{ course.name }}</h1>
@@ -69,15 +69,14 @@ export default {
     return {
       course: {
         id: null,
-        name: 'Курс по Vue.js',
-        description: 'Тут будет описание курса',
-        code: '111111',
-        lessons: [
-          { id: 1, name: 'Введение в Vue.js' },
-          { id: 2, name: 'Компоненты и пропсы' },
-          { id: 3, name: 'Состояние и методы' },],
-        isAuthor: true,
+        name: '',
+        description: '',
+        code: '',
+        lessons: [],
+        isAuthor: false,
       },
+        coursesUser: [],
+        coursesAuthored: [],
     };
   },
   computed: {
@@ -86,13 +85,36 @@ export default {
     },
   },
   async created() {
-    await this.fetchCourseData();
+    await this.fetchCourses();
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const courseId = urlParams.get('id'); // Получаем ID курса из URL
+    if (courseId) {
+      await this.fetchCourseData(courseId); // Загружаем данные курса
+    } else {
+      alert('ID курса не указан');
+    }
   },
   methods: {
-    async fetchCourseData() {
+    async fetchCourses() {
       try {
-        const response = await axios.get(`/course?id=${this.$route.params.id}`);
-        this.course = response.data.data.course;
+        const response = await axios.get('api/course/all');
+        // Извлекаем курсы из CourseUser
+        const coursesUser = response.data.data.coursesUser.map(courseUser => courseUser.course);
+
+        // Курсы, созданные пользователем
+        const coursesAuthored = response.data.data.coursesAuthored;
+
+        this.coursesUser = coursesUser;
+        this.coursesAuthored = coursesAuthored;
+      } catch (error) {
+        alert('Ошибка при загрузке курсов');
+      }
+    },
+    async fetchCourseData(courseId) { // Добавляем параметр courseId
+      try {
+        const response = await axios.get(`/api/course?id=${courseId}`);
+        this.course = response.data.data.course; // Обновляем данные курса
       } catch (error) {
         alert(getErrorMessage(error));
       }

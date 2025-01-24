@@ -1,6 +1,6 @@
 <template>
   <div class="page-container">
-    <Sidebar/>
+    <Sidebar :studentCourses="coursesUser" :teacherCourses="coursesAuthored" />
     <div class="page">
       <h1 class="page-title">Курсы</h1>
       <div class="courses-page-menu-container">
@@ -33,6 +33,7 @@
             v-for="course in filteredCourses"
             :key="course.id"
             :course="course"
+            :course-url="generateCourseUrl(course.id)"
         />
       </div>
 
@@ -79,7 +80,7 @@ export default {
   methods: {
     async fetchCourses() {
       try {
-        const response = await axios.get('/course/all');
+        const response = await axios.get('api/course/all');
         // Извлекаем курсы из CourseUser
         const coursesUser = response.data.data.coursesUser.map(courseUser => courseUser.course);
 
@@ -97,6 +98,9 @@ export default {
       } catch (error) {
         alert(getErrorMessage(error));
       }
+    },
+    generateCourseUrl(courseId) {
+      return `/course?id=${courseId}`; // Генерация URL на основе ID курса
     },
     setFilter(type) {
       this.filterType = type;
