@@ -13,6 +13,7 @@ readonly class LessonDTO
     public string $name;
 
     #[Assert\Type(type: 'string')]
+    #[Assert\Null]
     public ?string $description;
 
     #[Assert\NotNull(message: 'ID курса не указан')]
