@@ -58,7 +58,7 @@ export default {
     },
     async saveCourse() {
       try {
-        const dataCourse = await axios.post('/course/create', {
+        const dataCourse = await axios.post('api/course/create', {
           name: this.courseName,
           description: this.courseDescription,
         });
