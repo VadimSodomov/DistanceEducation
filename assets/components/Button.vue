@@ -23,7 +23,7 @@ export default {
       type: String,
       default: 'center', // По умолчанию текст выравнивается по центру
       validator: (value) => ['left', 'center'].includes(value), // Допустимые значения
-    },
+    }
   },
   methods: {
     handleClick() {

@@ -3,8 +3,8 @@
     <!-- Верхняя часть карточки (30% высоты) -->
     <div class="course-card-top">
       <div class="course-info">
-        <a href="#" class="course-title">{{ course.name }}</a>
-        <p class="course-author">{{ course.author }}</p>
+        <a href="{{ path('course_page', { id: course.id }) }}" class="course-title">{{ course.name }}</a>
+        <p class="course-author">{{ course.author.name }}</p>
       </div>
         <button class="leave-course-button" @click="leaveCourse" ref="tooltip">
           <i class="fas fa-sign-out-alt"></i> <!-- Иконка для покидания курса -->

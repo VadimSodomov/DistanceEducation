@@ -24,6 +24,10 @@ body {
             margin: 10px 0 5px 10px;
             color: #2e2d2d;
         }
+
+        h2, h3{
+            color: #2e2d2d;
+        }
     }
 }
 
