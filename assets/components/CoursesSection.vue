@@ -6,7 +6,7 @@
     </div>
     <ul v-if="isExpanded" class="courses-list">
       <li v-for="course in courses" :key="course.id">
-        <a :href="course.link">{{ course.name }}</a>
+        <a :href="generateCourseUrl(course.id)">{{ course.name }}</a>
       </li>
     </ul>
   </div>
@@ -32,6 +32,9 @@ export default {
   methods: {
     toggleSection() {
       this.isExpanded = !this.isExpanded;
+    },
+    generateCourseUrl(courseId) {
+      return `/course?id=${courseId}`; // Генерация URL на основе ID курса
     },
   },
 };
