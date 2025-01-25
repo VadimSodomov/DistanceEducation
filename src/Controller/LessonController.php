@@ -30,14 +30,6 @@ class LessonController extends AbstractController
         
     }
 
-    #[Route('/api/lesson', name: 'app_lesson', methods: ['GET'])]
-    public function index(): Response
-    {
-        return $this->render('lesson/index.html.twig', [
-            'controller_name' => 'LessonController',
-        ]);
-    }
-
     #[Route('/api/lesson/create', name: 'api_lesson_create', methods: ['POST'], format: 'json')]
     public function create(#[MapRequestPayload] LessonDTO $lessonDTO): JsonResponse
     {
