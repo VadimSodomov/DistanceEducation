@@ -30,7 +30,7 @@ class LessonController extends AbstractController
         
     }
 
-    #[Route('/lesson', name: 'app_lesson', methods: ['GET'])]
+    #[Route('/api/lesson', name: 'app_lesson', methods: ['GET'])]
     public function index(): Response
     {
         return $this->render('lesson/index.html.twig', [
@@ -38,7 +38,7 @@ class LessonController extends AbstractController
         ]);
     }
 
-    #[Route('/lesson/create', name: 'api_lesson_create', methods: ['POST'], format: 'json')]
+    #[Route('/api/lesson/create', name: 'api_lesson_create', methods: ['POST'], format: 'json')]
     public function create(#[MapRequestPayload] LessonDTO $lessonDTO): JsonResponse
     {
         $lesson = new Lesson();
@@ -54,7 +54,7 @@ class LessonController extends AbstractController
     }
 
     #[Route(
-        '/lesson/delete/{id}',
+        '/api/lesson/delete/{id}',
         name: 'api_lesson_delete',
         requirements: ['id' => '\d+'],
         methods: ['POST'],
@@ -69,7 +69,7 @@ class LessonController extends AbstractController
         return $this->json(['message' => 'Урок успешно удален']);
     }
 
-    #[Route('/lesson/statistic', name: 'api_lesson_get_statistic', methods: ['GET'], format: 'json')]
+    #[Route('/api/lesson/statistic', name: 'api_lesson_get_statistic', methods: ['GET'], format: 'json')]
     public function getOne(
         #[MapQueryParameter] ?int    $id
     ): JsonResponse
