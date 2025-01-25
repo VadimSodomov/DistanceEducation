@@ -55,6 +55,13 @@ class CourseController extends AbstractController
         return $this->render('course/index.html.twig');
     }
 
+    //TODO: перенести в юзер контроллер
+    #[Route('api/user', name: 'api_user', methods: ['GET'], format: 'json')]
+    public function getCurrentUser(): JsonResponse
+    {
+        return $this->json(['data' => $this->user]);
+    }
+
     #[Route('api/course/all', name: 'api_course_all', methods: ['GET'], format: 'json')]
     public function getAll(): JsonResponse
     {
