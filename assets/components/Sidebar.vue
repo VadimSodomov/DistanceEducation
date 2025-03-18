@@ -8,7 +8,8 @@
         <li>
           <Button @click="ToMainPage"
                   :fullWidth="true"
-                  textAlign="left">Все курсы</Button>
+                  textAlign="left">Все курсы
+          </Button>
         </li>
         <li>
           <CoursesSection
@@ -37,6 +38,8 @@ import Button from './Button.vue';
 
 import tippy from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
+import axios from "axios";
+import {getErrorMessage} from "../utils/ErrorHelper";
 
 export default {
   components: {
@@ -55,7 +58,7 @@ export default {
   },
   data() {
     return {
-      username: 'Имя пользователя'
+      username: ''
     };
   },
   mounted() {
@@ -63,6 +66,15 @@ export default {
       content: 'Выйти',
     });
   },
+  async created() {
+    try {
+        const response = await axios.get(`api/user`);
+        this.username = response.data.data.name
+      } catch (error) {
+        alert(getErrorMessage(error));
+      }
+  },
+
   methods: {
     ToMainPage() {
       window.location.href = '/';

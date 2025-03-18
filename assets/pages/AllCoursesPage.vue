@@ -1,6 +1,6 @@
 <template>
   <div class="page-container">
-    <Sidebar :studentCourses="coursesUser" :teacherCourses="coursesAuthored" />
+    <Sidebar :studentCourses="coursesUser" :teacherCourses="coursesAuthored"/>
     <div class="page">
       <h1 class="page-title">Курсы</h1>
       <div class="courses-page-menu-container">
@@ -24,9 +24,15 @@
             Созданные курсы
           </button>
         </div>
-        <button class="create-course-btn" @click="openPopup">
-          Создать курс
-        </button>
+        <div class="filter-buttons">
+          <button class="create-course-btn" @click="openPopupFind">
+            Найти курс
+          </button>
+          <button class="create-course-btn" @click="openPopup">
+            Создать курс
+          </button>
+        </div>
+
       </div>
       <div class="courses-grid">
         <CourseCard
@@ -38,6 +44,7 @@
       </div>
 
       <CreateCoursePopup :isVisible="isPopupOpen" @close="closePopup"/>
+      <FindToCoursePopup :isVisible="isPopupOpenFind" @closeFind="closePopupFind"/>
     </div>
   </div>
 
@@ -49,17 +56,20 @@ import axios from 'axios';
 import CourseCard from "../components/CourseCard.vue";
 import Sidebar from "../components/Sidebar.vue";
 import CreateCoursePopup from "../components/CreateCoursePopup.vue";
+import FindToCoursePopup from "../components/FindToCoursePopup.vue";
 
 export default {
   components: {
     CourseCard,
     Sidebar,
-    CreateCoursePopup
+    CreateCoursePopup,
+    FindToCoursePopup
   },
   data() {
     return {
       filterType: null,
       isPopupOpen: false,
+      isPopupOpenFind: false,
       courses: [],
       coursesUser: [],
       coursesAuthored: [],
@@ -90,7 +100,22 @@ export default {
         // Объединяем оба списка курсов
         this.coursesUser = coursesUser;
         this.coursesAuthored = coursesAuthored;
-        this.courses = [...coursesUser, ...coursesAuthored];
+
+        this.coursesUser = coursesUser.map(course => {
+          return {
+            ...course,
+            isAuthored: false,
+          };
+        });
+
+        this.coursesAuthored = coursesAuthored.map(course => {
+          return {
+            ...course,
+            isAuthored: true,
+          };
+        });
+
+        this.courses = [...this.coursesUser, ...this.coursesAuthored];
 
         console.log('Данные с бэкэнда:', response.data);
         console.log('Курсы из CourseUser:', coursesUser);
@@ -110,6 +135,13 @@ export default {
     },
     closePopup() {
       this.isPopupOpen = false;
+    },
+
+    openPopupFind() {
+      this.isPopupOpenFind = !this.isPopupOpenFind;
+    },
+    closePopupFind() {
+      this.isPopupOpenFind = false;
     },
   },
   async created() {
