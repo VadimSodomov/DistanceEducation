@@ -1,29 +1,17 @@
 <template>
   <div class="create-course-popup" v-if="isVisible">
     <div class="popup-container">
-      <button class="close-button" @click="closePopup">&times;</button>
-      <div class="popup-content" v-if="!isCreated">
-        <h2>Создание курса</h2>
+      <button class="close-button" @click="closePopupAdd">&times;</button>
+      <div class="popup-content">
+        <h2>Найти</h2>
         <input
             class="popup-input"
             type=text
-            placeholder="Введите название"
+            placeholder="Введите код"
             required
-            v-model="courseName"
+            v-model="courseCode"
         />
-        <textarea
-            class="popup-input popup-textarea"
-            placeholder="Введите Описание"
-            required
-            v-model="courseDescription"
-        />
-        <button class="create-course-btn" @click="saveCourse">Создать</button>
-      </div>
-      <div class="popup-content" v-else>
-        <h2>Курс "{{ courseName }}" успешно создан!</h2>
-        <div class="link-container">
-          <p class="course-code" @click="copyCode">Скопировать код</p>
-        </div>
+        <button class="create-course-btn" @click="addCourse">Найти</button>
       </div>
     </div>
   </div>
@@ -32,13 +20,12 @@
 <script>
 import axios from "axios";
 import {getErrorMessage} from '../utils/ErrorHelper';
+import {followCursor} from "tippy.js";
 
 export default {
   data() {
     return {
       isCreated: false,
-      courseName: '',
-      courseDescription: '',
       courseCode: '',
     }
   },
@@ -49,36 +36,18 @@ export default {
     },
   },
   methods: {
-    closePopup() {
-      this.courseName = '';
-      this.courseDescription = '';
+    closePopupAdd() {
       this.courseCode = '';
-      this.isCreated = false
-      this.$emit('close');
-      window.location.href = '/';
+      this.$emit('closeFind');
     },
-    async saveCourse() {
+    async addCourse() {
       try {
-        const dataCourse = await axios.post('api/course/create', {
-          name: this.courseName,
-          description: this.courseDescription,
-        });
-        this.courseName = dataCourse.data.data.name
-        this.courseCode = dataCourse.data.data.code;
-        this.isCreated = true;
+        const response = await axios.get(`api/course?code=${this.courseCode}`);
+        window.location.href = `/course?id=${response.data.data.course.id}`;
       } catch (error) {
         alert(getErrorMessage(error));
       }
 
-    },
-    copyCode() {
-      navigator.clipboard.writeText(this.courseCode)
-          .then(() => {
-            alert('Код скопирован!');
-          })
-          .catch(() => {
-            alert('Не удалось скопировать код.');
-          });
     },
   },
 }

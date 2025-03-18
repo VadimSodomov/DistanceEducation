@@ -1,28 +1,36 @@
 <template>
   <div class="page-container">
-    <Sidebar :studentCourses="coursesUser" :teacherCourses="coursesAuthored" />
+    <Sidebar :studentCourses="coursesUser" :teacherCourses="coursesAuthored"/>
     <div class="page">
-        <div class="course-header">
-          <h1 class="page-title">{{ course.name }}</h1>
-          <div class="course-actions">
-            <div v-if="isAuthor" class="course-code-container">
-              <span class="course-code-label">Код курса:</span>
-              <div class="course-code">{{ course.code }}</div>
-            </div>
-            <Button
-                v-if="isAuthor"
-                @click="deleteCourse"
-            >
-            Удалить курс
-            </Button>
-            <Button
-                v-else
-                @click="leaveCourse"
-            >
-            Покинуть курс
-            </Button>
+      <div class="course-header">
+        <h1 class="page-title">{{ course.name }}</h1>
+        <div class="course-actions">
+          <div v-if="isAuthor" class="course-code-container">
+            <div class="course-code" @click="copyCode">Скопировать код</div>
           </div>
+          <Button
+              v-if="isAuthor"
+              @click="deleteCourse"
+              class="delete-course"
+          >
+            Удалить курс
+          </Button>
+          <Button
+              v-if="!isAuthor && isConnected"
+              @click="leaveCourse"
+              class="delete-course"
+          >
+            Покинуть курс
+          </Button>
+          <Button
+              v-if="!isAuthor && !isConnected"
+              @click="subscribeCourse"
+              class="subs-course"
+          >
+            Присоединиться
+          </Button>
         </div>
+      </div>
       <div class="course-page">
         <!-- Описание курса -->
         <div class="course-description">
@@ -58,10 +66,11 @@
 
 <script>
 import axios from 'axios';
-import { getErrorMessage } from '../utils/ErrorHelper';
+import {getErrorMessage} from '../utils/ErrorHelper';
 import Sidebar from "../components/Sidebar.vue";
 import Button from "../components/Button.vue";
 import LessonItem from "../components/LessonItem.vue";
+import {loadRouteLocation} from "vue-router";
 
 export default {
   components: {Sidebar, Button, LessonItem},
@@ -73,16 +82,12 @@ export default {
         description: '',
         code: '',
         lessons: [],
-        isAuthor: false,
       },
-        coursesUser: [],
-        coursesAuthored: [],
+      isAuthor: false,
+      isConnected: false,
+      coursesUser: [],
+      coursesAuthored: [],
     };
-  },
-  computed: {
-    isAuthor() {
-      return this.course.isAuthor;
-    },
   },
   async created() {
     await this.fetchCourses();
@@ -96,6 +101,16 @@ export default {
     }
   },
   methods: {
+    copyCode() {
+      navigator.clipboard.writeText(this.courseCode)
+          .then(() => {
+            alert('Код скопирован!');
+          })
+          .catch(() => {
+            alert('Не удалось скопировать код.');
+          });
+    },
+
     async fetchCourses() {
       try {
         const response = await axios.get('api/course/all');
@@ -115,22 +130,36 @@ export default {
       try {
         const response = await axios.get(`/api/course?id=${courseId}`);
         this.course = response.data.data.course; // Обновляем данные курса
+        this.isAuthor = response.data.data.isAuthor;
+        this.isConnected = response.data.data.isConnected;
+
       } catch (error) {
         alert(getErrorMessage(error));
       }
     },
     async deleteCourse() {
       try {
-        await axios.post(`/course/delete/${this.course.id}`);
-        this.$router.push('/courses');
+        await axios.post(`api/course/delete/${this.course.id}`);
+        window.location.href = '/';
       } catch (error) {
         alert(getErrorMessage(error));
       }
     },
     async leaveCourse() {
       try {
-        await axios.post(`/course/unsubscribe/${this.course.id}`);
-        this.$router.push('/courses');
+        await axios.post(`api/course/unsubscribe/${this.course.id}`);
+        this.isConnected = false;
+        window.location.href = '/';
+      } catch (error) {
+        console.log('error', error)
+        alert(getErrorMessage(error));
+      }
+    },
+
+    async subscribeCourse() {
+      try {
+        await axios.post(`api/course/subscribe/${this.course.id}`);
+        this.isConnected = true;
       } catch (error) {
         alert(getErrorMessage(error));
       }
@@ -156,6 +185,22 @@ export default {
   display: flex;
   align-items: center;
   gap: 10px;
+
+  .delete-course{
+    background-color: #ed7777;
+
+    &:hover{
+      background-color: #f1b0b0;
+    }
+  }
+
+  .subs-course{
+    background-color: #6fc371;
+
+    &:hover{
+      background-color: #b1ddb1;
+    }
+  }
 }
 
 .course-code-container {
@@ -166,17 +211,19 @@ export default {
   padding: 10px;
   border-radius: 14px;
   opacity: 0.7;
-}
+  cursor: pointer;
 
-.course-code-label {
-  font-size: 14px;
-  color: #2e2d2d
+  &:hover {
+    background-color: #cfd2e3;
+  }
 }
 
 .course-code {
   font-weight: bold;
-  color: #2e2d2d
+  color: #2e2d2d;
+  cursor: pointer;
 }
+
 .course-description {
 }
 
