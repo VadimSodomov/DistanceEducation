@@ -29,13 +29,7 @@ class AuthController extends AbstractController
     {
     }
 
-    #[Route('/login', name: 'app_login_index', methods: ['GET'])]
-    public function index(): Response
-    {
-        return $this->render('auth/index.html.twig');
-    }
-
-    #[Route('/login', name: 'app_login_process', methods: ['POST'])]
+    #[Route('/api/login', name: 'api_login_process', methods: ['POST'])]
     public function loginProcess(
         Security                         $security,
         #[MapRequestPayload] AuthUserDTO $authDTO
@@ -44,7 +38,7 @@ class AuthController extends AbstractController
         return $this->loginHandler($authDTO, RoleEnum::USER->value, $security);
     }
 
-    #[Route('/register', name: 'app_register_process', methods: ['POST'])]
+    #[Route('/api/register', name: 'api_register_process', methods: ['POST'])]
     public function registerProcess(
         Security                         $security,
         #[MapRequestPayload] UserDTO     $userDTO,
@@ -68,8 +62,6 @@ class AuthController extends AbstractController
         $this->entityManager->persist($user);
 
         $this->entityManager->flush();
-
-        $security->login($authUser);
 
         return $this->json(['message' => 'Пользователь успешно создан'], Response::HTTP_CREATED);
     }
