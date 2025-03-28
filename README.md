@@ -89,8 +89,12 @@ mkdir -p config/jwt
 openssl genpkey -algorithm RSA -out config/jwt/private.pem -aes256 -pass pass:<your_password>
 openssl pkey -in config/jwt/private.pem -out config/jwt/public.pem -pubout -passin pass:<your_password>
 ```
-Далее введенный в команду пароль нужно добавить в файл `.env`:
+Далее вставить код ниже в `.env` и в JWT_PASSPHRASE вставить введенный в команду пароль:
 ```
+CORS_ALLOW_ORIGIN='^https?://(localhost|127\.0\.0\.1)(:[0-9]+)?$'
+
+JWT_SECRET_KEY=%kernel.project_dir%/config/jwt/private.pem
+JWT_PUBLIC_KEY=%kernel.project_dir%/config/jwt/public.pem
 JWT_PASSPHRASE=your_password
 ```
 
