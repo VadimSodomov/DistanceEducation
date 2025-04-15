@@ -146,7 +146,7 @@ class CourseController extends AbstractController
         $this->entityManager->remove($course);
         $this->entityManager->flush();
 
-        return $this->json(['message' => 'Курс успешно удален']);
+        return $this->json(['message' => 'Курс успешно удален'], Response::HTTP_OK);
     }
 
     #[Route(
@@ -167,7 +167,7 @@ class CourseController extends AbstractController
 
         $this->entityManager->persist($courseUser);
         $this->entityManager->flush();
-        return $this->json(['message' => 'Вы записались на курс!']);
+        return $this->json(['message' => 'Вы записались на курс!'], Response::HTTP_OK);
     }
 
     #[Route(
@@ -189,6 +189,6 @@ class CourseController extends AbstractController
             $this->entityManager->remove($courseUser);
         }
         $this->entityManager->flush();
-        return $this->json(['message' => 'Вы отписались от курса']);
+        return $this->json(['message' => 'Вы отписались от курса'], Response::HTTP_OK);
     }
 }
