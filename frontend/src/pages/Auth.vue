@@ -93,20 +93,21 @@ export default {
             email: this.email,
             password: this.password,
           });
-          const token = response.data.token;
-          localStorage.setItem('jwt-token', token);
-
-          await this.fetchCurrentUser();
-          this.$router.push({name: 'AllCoursesPage'});
         } else {
           response = await apiClient.post('/api/register', {
             name: this.name,
             email: this.email,
             password: this.password,
           });
-          this.isSuccess = true;
-          this.message = 'Вы успешно зарегистрировались!'
         }
+
+        const token = response.data.token;
+        localStorage.setItem('jwt-token', token);
+
+        await this.fetchCurrentUser();
+        this.isSuccess = true;
+
+        this.$router.push({name: 'AllCoursesPage'});
       } catch (error) {
         this.isSuccess = false;
         this.message = getErrorMessage(error)
