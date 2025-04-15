@@ -11,6 +11,7 @@ use App\Entity\User;
 use App\Enum\RoleEnum;
 use App\Repository\AuthUserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -40,7 +41,7 @@ class AuthController extends AbstractController
 
     #[Route('/api/register', name: 'api_register_process', methods: ['POST'])]
     public function registerProcess(
-        Security                         $security,
+        JWTTokenManagerInterface         $jwtManager,
         #[MapRequestPayload] UserDTO     $userDTO,
         #[MapRequestPayload] AuthUserDTO $authDTO
     ): Response
@@ -63,7 +64,15 @@ class AuthController extends AbstractController
 
         $this->entityManager->flush();
 
-        return $this->json(['message' => 'Пользователь успешно создан'], Response::HTTP_CREATED);
+        $token = $jwtManager->create($authUser);
+
+        return $this->json(
+            [
+                'message' => 'Пользователь успешно создан',
+                'token' => $token,
+            ],
+            Response::HTTP_CREATED
+        );
     }
 
     private function loginHandler(
