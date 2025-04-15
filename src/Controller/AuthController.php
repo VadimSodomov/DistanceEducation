@@ -49,7 +49,7 @@ class AuthController extends AbstractController
         $authUser = $this->authUserRepository->findOneByEmail($authDTO->email);
 
         if ($authUser !== null) {
-            return $this->json(['message' => 'Пользователь уже существует'], Response::HTTP_BAD_REQUEST);
+            return $this->json(['error' => 'Пользователь уже существует'], Response::HTTP_CONFLICT);
         }
 
         $authUser = new AuthUser();
@@ -84,14 +84,14 @@ class AuthController extends AbstractController
         $user = $this->authUserRepository->findOneByEmail($authDTO->email);
 
         if (is_null($user) || !in_array($role, $user->getRoles())) {
-            return $this->json(['message' => 'Пользователь не найден'], Response::HTTP_UNAUTHORIZED);
+            return $this->json(['error' => 'Пользователь не найден'], Response::HTTP_UNAUTHORIZED);
         }
 
         if (!$this->passwordHasher->isPasswordValid($user, $authDTO->password)) {
-            return $this->json(['message' => 'Неверный пароль'], Response::HTTP_UNAUTHORIZED);
+            return $this->json(['error' => 'Неверный пароль'], Response::HTTP_UNAUTHORIZED);
         }
 
         $security->login($user);
-        return $this->json(['data' => 'success'], Response::HTTP_OK);
+        return $this->json(['message' => 'success'], Response::HTTP_OK);
     }
 }

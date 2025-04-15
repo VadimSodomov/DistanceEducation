@@ -78,7 +78,7 @@ class CourseController extends AbstractController
         } elseif ($code !== null) {
             $course = $this->courseRepository->findOneBy(['code' => $code]);
         } else {
-            return $this->json(['message' => 'Код или id не указаны', Response::HTTP_BAD_REQUEST]);
+            return $this->json(['error' => 'Код или id не указаны', Response::HTTP_BAD_REQUEST]);
         }
 
         if ($course === null) {
@@ -146,7 +146,7 @@ class CourseController extends AbstractController
         $this->entityManager->remove($course);
         $this->entityManager->flush();
 
-        return $this->json(['message' => 'Курс успешно удален']);
+        return $this->json(['message' => 'Курс успешно удален'], Response::HTTP_OK);
     }
 
     #[Route(
@@ -159,7 +159,7 @@ class CourseController extends AbstractController
     public function subscribe(Course $course): JsonResponse
     {
         if ($this->courseUserRepository->findOneBy(['course' => $course, 'user' => $this->user]) !== null) {
-            return $this->json(['message' => 'Вы уже подписаны на курс!']);
+            return $this->json(['error' => 'Вы уже подписаны на курс!'], Response::HTTP_CONFLICT);
         }
 
         $courseUser = new CourseUser();
@@ -167,7 +167,7 @@ class CourseController extends AbstractController
 
         $this->entityManager->persist($courseUser);
         $this->entityManager->flush();
-        return $this->json(['message' => 'Вы записались на курс!']);
+        return $this->json(['message' => 'Вы записались на курс!'], Response::HTTP_OK);
     }
 
     #[Route(
@@ -182,13 +182,13 @@ class CourseController extends AbstractController
         $coursesUser = $this->courseUserRepository->findBy(['course' => $course, 'user' => $this->user]);
 
         if ($coursesUser === []) {
-            return $this->json(['message' => 'Вы не подписаны на курс']);
+            return $this->json(['error' => 'Вы не подписаны на курс'], Response::HTTP_CONFLICT);
         }
 
         foreach ($coursesUser as $courseUser) {
             $this->entityManager->remove($courseUser);
         }
         $this->entityManager->flush();
-        return $this->json(['message' => 'Вы отписались от курса']);
+        return $this->json(['message' => 'Вы отписались от курса'], Response::HTTP_OK);
     }
 }

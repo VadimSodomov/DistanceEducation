@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
@@ -54,7 +55,7 @@ class LessonController extends AbstractController
         $this->entityManager->remove($lesson);
         $this->entityManager->flush();
 
-        return $this->json(['message' => 'Урок успешно удален']);
+        return $this->json(['message' => 'Урок успешно удален'], Response::HTTP_OK);
     }
 
     #[Route('/api/lesson/statistic', name: 'api_lesson_get_statistic', methods: ['GET'], format: 'json')]

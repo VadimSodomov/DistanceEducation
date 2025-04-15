@@ -110,13 +110,10 @@ export default {
         this.$router.push({name: 'AllCoursesPage'});
       } catch (error) {
         this.isSuccess = false;
-        this.message = getErrorMessage(error)
-        if (this.message === null) {
-          if (this.isEntry)
-            this.message = 'Неверный логин или пароль';
-          else
-            this.message = 'Ошибка при регистрации';
-        }
+
+        const defaultMessage = this.isEntry ? 'Неверный логин или пароль' : 'Ошибка при регистрации';
+
+        this.message = getErrorMessage(error, defaultMessage);
       } finally {
         this.isLoading = false;
       }
