@@ -1,18 +1,18 @@
-export function getErrorMessage(error) {
-    if (error.response && error.response.data) {
-        //const detail = error.response.data;
-        const message = error.response.data.message
+export function getErrorMessage(error, defaultMessage=null) {
+    const errorData = error?.response?.data;
+    defaultMessage ??= 'Произошла ошибка'
 
-        // if (detail) {
-        //     const detailParts = detail.split(':');
-        //     return detailParts.length > 1 ? detailParts[1].trim() : detail.trim();
-        // }
+    if (!errorData) return defaultMessage;
 
-        if (message) {
-            return message;
-        }
+    if (errorData.error) {
+        return errorData.error;
     }
-    console.log(error);
 
-    return 'Произошла ошибка, попробуйте еще раз';
+    if (errorData.status === 422 && errorData?.violations?.[0]?.title) {
+        return errorData.violations[0].title;
+    }
+
+    console.log(errorData);
+
+    return defaultMessage;
 }
