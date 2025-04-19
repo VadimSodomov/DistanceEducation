@@ -72,7 +72,6 @@ const items = computed(() => [
     icon: 'pi pi-sign-out',
     command: () => {
       store.dispatch('logout');
-      //localStorage.removeItem('setUser');
       router.push({name: 'LoginPage'});
     }
   }
@@ -90,22 +89,11 @@ const switchTheme = () => {
   localStorage.setItem('theme', darkMode.value ? 'dark' : 'light');
 };
 
-// const getUser = async () => {
-//   try {
-//     const response = await apiClient.get('/api/user');
-//     localStorage.setItem('setUser', JSON.stringify(response.data.login));
-//   } catch (error) {
-//     console.error("Ошибка при получении пользователя:", error);
-//     localStorage.removeItem('setUser');
-//   }
-// };
-
 onMounted(async () => {
   const savedTheme = localStorage.getItem('theme');
   if (savedTheme === 'dark') {
     darkMode.value = true;
     document.documentElement.classList.toggle('my-app-dark');
   }
-  //await getUser();
 });
 </script>
