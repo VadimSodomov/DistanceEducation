@@ -23,7 +23,6 @@
     <template #end>
       <div class="flex items-center gap-2">
         <Button
-            icon="pi pi-user"
             :label="userName"
             severity="secondary"
             @click="toggle"
@@ -64,12 +63,10 @@ const userName = computed(() => {
 const items = computed(() => [
   {
     label: 'Сменить тему',
-    icon: darkMode.value ? 'pi pi-moon' : 'pi pi-sun',
     command: () => switchTheme()
   },
   {
     label: 'Выйти',
-    icon: 'pi pi-sign-out',
     command: () => {
       store.dispatch('logout');
       router.push({name: 'LoginPage'});
