@@ -1,125 +1,114 @@
 <template>
+  <Toast/>
   <div class="auth-page">
-    <div class="auth-form">
-      <div class="form-box">
+    <Card style="width: 300px;">
+      <template #title>
         <div class="main-title">
-          <div :class="[{ 'active': isEntry }]" @click="toggleEntry">
+          <div :class="[{ 'active': isEntry }]" @click="isEntry = !isEntry">
             Вход
           </div>
-          <div :class="[{ 'active': !isEntry }]" @click="toggleEntry">
+          <div :class="[{ 'active': !isEntry }]" @click="isEntry = !isEntry">
             Регистрация
           </div>
         </div>
-        <div v-if="!isEntry">
-          <input
-              class="auth-input"
-              type=text
+      </template>
+      <template #content>
+        <p class="m-0 content">
+          <InputText
+              v-if="!isEntry"
               id="name"
-              v-model="name"
+              v-model="authData.name"
               placeholder="Введите имя"
               required
           />
-        </div>
-        <input
-            class="auth-input"
-            type="email"
-            id="email"
-            v-model="email"
-            placeholder="Введите email"
-            required
+
+          <InputText
+              v-model="authData.email"
+              required
+              type="email"
+              id="email"
+              placeholder="Введите email"
+          />
+
+          <InputText
+              v-model="authData.password"
+              type="password"
+              id="password"
+              placeholder="Введите пароль"
+              required
+          />
+        </p>
+      </template>
+      <template #footer>
+        <Button
+            @click="handleLogin"
+            class="w-full"
+            style="margin-top: 10px"
+            :disabled="disabledBtn"
+            :loading="isLoading"
+            :label="isEntry ? 'Войти' : 'Создать аккаунт'"
         />
-        <input
-            class="auth-input"
-            type="password"
-            id="password"
-            v-model="password"
-            placeholder="Введите пароль"
-            required
-        />
-        <button class="auth-btn" @click="handleLogin" :disabled="isLoading || disabledBtn">
-          {{ isLoading ? 'Загрузка...' : (isEntry ?  'Войти' : 'Создать аккаунт') }}
-        </button>
-        <div v-if="message" class="message" :class="{ success: isSuccess, error: !isSuccess }">
-          {{ message }}
-        </div>
-      </div>
-    </div>
+      </template>
+    </Card>
   </div>
 </template>
 
-<script>
+<script setup>
+import {Card, useToast} from "primevue";
+import {computed, ref} from "vue";
 import apiClient from "@/api/index.js";
-import {mapActions} from "vuex";
+import {InputText} from "primevue";
+import {Button} from "primevue";
 import {getErrorMessage} from "@/utils/ErrorHelper.js";
+import {useRouter} from "vue-router";
+import {Toast} from "primevue";
+import store from "@/store/index.js";
 
-export default {
-  data() {
-    return {
-      isEntry: true,
-      name: '',
-      email: '',
-      password: '',
-      isLoading: false,
-      message: '',
-      isSuccess: false,
+const fetchCurrentUser = () => store.dispatch('fetchCurrentUser');
 
-    };
-  },
-  computed: {
-    disabledBtn() {
-      if (this.isEntry)
-        return !(this.email && this.password && this.password.length >= 5)
-      else
-        return !(this.name && this.email && this.password && this.password.length >= 5)
-    },
-  },
+const toast = useToast()
+const router = useRouter()
+const isEntry = ref(true)
+const isLoading = ref(false)
 
-  methods: {
-    ...mapActions(['fetchCurrentUser']),
+const authData = ref({
+  name: '',
+  email: '',
+  password: ''
+})
 
-    toggleEntry() {
-      this.isEntry = !this.isEntry;
-      this.message = '';
-    },
+const disabledBtn = computed(() => {
+  if (isEntry.value)
+    return !(authData.value.email && authData.value.password && authData.value.password.length >= 5)
+  else
+    return !(authData.value.name && authData.value.email && authData.value.password && authData.value.password.length >= 5)
+})
 
-    async handleLogin() {
-      this.isLoading = true;
-      this.message = '';
+const handleLogin = async () => {
+  isLoading.value = true;
+  try {
+    const endpoint = isEntry.value ? '/api/login' : '/api/register';
+    const response = await apiClient.post(endpoint, {
+      email: authData.value.email,
+      password: authData.value.password,
+      ...(!isEntry.value && {name: authData.value.name})
+    });
 
-      let response;
-      try {
-        if (this.isEntry) {
-          response = await apiClient.post('/api/login', {
-            email: this.email,
-            password: this.password,
-          });
-        } else {
-          response = await apiClient.post('/api/register', {
-            name: this.name,
-            email: this.email,
-            password: this.password,
-          });
-        }
+    localStorage.setItem('jwt-token', response.data.token);
+    await store.dispatch('fetchCurrentUser');
+    await router.push({name: 'MyCoursesPage'});
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: 'Ошибка',
+      detail: getErrorMessage(error),
+      life: 4000
+    });
+  } finally {
+    isLoading.value = false;
+  }
+}
 
-        const token = response.data.token;
-        localStorage.setItem('jwt-token', token);
-
-        await this.fetchCurrentUser();
-        this.isSuccess = true;
-
-        this.$router.push({name: 'AllCoursesPage'});
-      } catch (error) {
-        this.isSuccess = false;
-
-        const defaultMessage = this.isEntry ? 'Неверный логин или пароль' : 'Ошибка при регистрации';
-
-        this.message = getErrorMessage(error, defaultMessage);
-      } finally {
-        this.isLoading = false;
-      }
-    }
-  },
-};
 </script>
 
 <style scoped>
@@ -128,48 +117,6 @@ export default {
   justify-content: center;
   align-items: center;
   height: 100vh;
-
-  .auth-form {
-    width: 100%;
-    max-width: 400px;
-    padding: 20px;
-    background-color: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  }
-
-  .form-box {
-    text-align: center;
-
-    .auth-input {
-      width: 92%;
-      padding: 10px;
-      border: 1px solid #6D7CF2;
-      border-radius: 14px;
-      margin-bottom: 15px;
-      font-size: 13px;
-    }
-
-    .auth-btn {
-      width: 100%;
-      padding: 10px;
-      background-color: #6D7CF2;
-      color: white;
-      border: none;
-      border-radius: 14px;
-      cursor: pointer;
-      font-size: 18px;
-
-      &:hover {
-        background-color: #8C99FF;
-      }
-
-      &:disabled {
-        background-color: #ABAFCD;
-        cursor: not-allowed;
-      }
-    }
-  }
 }
 
 .main-title {
@@ -182,7 +129,7 @@ export default {
   cursor: pointer;
 
   .active {
-    color: #6D7CF2;
+    color: var(--p-button-primary-background);
     position: relative;
 
     &:after {
@@ -192,23 +139,19 @@ export default {
       bottom: -2px;
       width: 100%;
       height: 2px;
-      background-color: #6D7CF2;
+      background-color: var(--p-button-primary-background);
     }
   }
 }
 
-.message {
-  margin-top: 10px;
-  font-size: 14px;
-  text-align: center;
-
-  &.error{
-    color: #ff0000;
-  }
-
-  &.success{
-    color: #48980a;
-  }
+.content {
+  display: flex;
+  gap: 20px;
+  flex-direction: column;
 }
 
+:deep(.p-card-body) {
+  height: 320px;
+  justify-content: space-between;
+}
 </style>
