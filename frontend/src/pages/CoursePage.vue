@@ -1,177 +1,188 @@
 <template>
+  <Toast/>
   <div class="page-container">
-    <Sidebar :studentCourses="coursesUser" :teacherCourses="coursesAuthored"/>
-    <div class="page">
-      <div class="course-header">
-        <h1 class="page-title">{{ course.name }}</h1>
-        <div class="course-actions">
-          <div v-if="isAuthor" class="course-code-container">
-            <div class="course-code" @click="copyCode">Скопировать код</div>
-          </div>
-          <Button
-              v-if="isAuthor"
-              @click="deleteCourse"
-              class="delete-course"
-          >
-            Удалить курс
-          </Button>
-          <Button
-              v-if="!isAuthor && isConnected"
-              @click="leaveCourse"
-              class="delete-course"
-          >
-            Покинуть курс
-          </Button>
-          <Button
-              v-if="!isAuthor && !isConnected"
-              @click="subscribeCourse"
-              class="subs-course"
-          >
-            Присоединиться
-          </Button>
-        </div>
+    <div class="course-header">
+      <h1>Курс: {{ courseData.name }}</h1>
+      <div class="course-actions">
+        <Button
+            label="Скопировать код"
+            v-if="isAuthor"
+            @click="copyCode"
+        />
+        <Button
+            v-if="isAuthor"
+            label="Удалить курс"
+            severity="danger"
+            @click="deleteCourse"
+        />
+        <Button
+            v-if="!isAuthor && isConnected"
+            label="Покинуть курс"
+            @click="leaveCourse"
+        />
+        <Button
+            v-if="!isAuthor && !isConnected"
+            label="Присоединиться"
+            @click="subscribeCourse"
+        />
       </div>
-      <div class="course-page">
-        <!-- Описание курса -->
-        <div class="course-description">
-          <h2>Описание курса</h2>
-          <p>{{ course.description }}</p>
-        </div>
+    </div>
 
-        <!-- Раздел с уроками -->
-        <div class="lessons-section">
-          <div class="lessons-header">
-            <h2>Уроки</h2>
-            <Button
-                v-if="isAuthor"
-                class="add-lesson-btn"
-                @click="addLesson"
-            >
-              +
-            </Button>
-          </div>
-          <ul class="lessons-list">
-            <li v-for="lesson in course.lessons" :key="lesson.id">
-              <LessonItem
-                  :lesson="lesson"
-                  @edit="handleEditLesson"
-              />
-            </li>
-          </ul>
+    <div>
+      <div class="course-description">
+        <h2>Описание курса</h2>
+        <p>{{ courseData.description }}</p>
+      </div>
+
+      <div class="lessons-section">
+        <div class="lessons-header">
+          <h2>Уроки</h2>
+          <Button
+              label="+"
+              v-if="isAuthor"
+              rounded
+              @click=""
+          />
         </div>
+        <ul class="lessons-list">
+          <li v-for="lesson in courseData.lessons" :key="lesson.id">
+
+          </li>
+        </ul>
       </div>
     </div>
   </div>
 </template>
 
-<script>
+<script setup>
 import {getErrorMessage} from '@/utils/ErrorHelper';
-import Sidebar from "@/components/Sidebar.vue";
-import Button from "@/components/Button.vue";
-import LessonItem from "@/components/LessonItem.vue";
+import {Button} from "primevue";
 import apiClient from "@/api/index.js";
+import {useRoute, useRouter} from "vue-router";
+import { onMounted, ref} from "vue";
+import {loader} from '@/utils/loader';
+import {Toast, useToast} from "primevue";
 
-export default {
-  components: {Sidebar, Button, LessonItem},
-  data() {
-    return {
-      course: {
-        id: null,
-        name: '',
-        description: '',
-        code: '',
-        lessons: [],
-      },
-      isAuthor: false,
-      isConnected: false,
-      coursesUser: [],
-      coursesAuthored: [],
-    };
-  },
-  async created() {
-    await this.fetchCourses();
+const toast = useToast()
+const route = useRoute()
+const router = useRouter()
+const courseId = route.query.courseId ? parseInt(route.query.courseId) : null
 
-    const courseId = this.$route.params.id;
-    if (courseId) {
-      await this.fetchCourseData(courseId); // Загружаем данные курса
-    } else {
-      alert('ID курса не указан');
-    }
-  },
-  methods: {
-    copyCode() {
-      navigator.clipboard.writeText(this.courseCode)
-          .then(() => {
-            alert('Код скопирован!');
-          })
-          .catch(() => {
-            alert('Не удалось скопировать код.');
-          });
-    },
+const courseData = ref({
+  id: null,
+  name: '',
+  description: '',
+  code: '',
+  lessons: [],
+  author: {
+    id: null,
+    name: ""
+  }
+})
 
-    async fetchCourses() {
-      try {
-        const response = await apiClient.get('api/course/all');
-        // Извлекаем курсы из CourseUser
-        const coursesUser = response.data.data.coursesUser.map(courseUser => courseUser.course);
+const isAuthor = ref(false)
+const isConnected = ref(false)
 
-        // Курсы, созданные пользователем
-        const coursesAuthored = response.data.data.coursesAuthored;
+const leaveCourse = async () => {
+  try {
+    await apiClient.post(`api/course/unsubscribe/${this.course.id}`);
+    await fetchCourseData();
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: 'Ошибка при покидании курса',
+      detail: `${getErrorMessage(error)}`,
+      life: 4000
+    });
+  }
+}
 
-        this.coursesUser = coursesUser;
-        this.coursesAuthored = coursesAuthored;
-      } catch (error) {
-        alert('Ошибка при загрузке курсов');
-      }
-    },
-    async fetchCourseData(courseId) { // Добавляем параметр courseId
-      try {
-        const response = await apiClient.get(`/api/course?id=${courseId}`);
-        this.course = response.data.data.course; // Обновляем данные курса
-        this.isAuthor = response.data.data.isAuthor;
-        this.isConnected = response.data.data.isConnected;
+const subscribeCourse = async () => {
+  try {
+    await apiClient.post(`api/course/subscribe/${this.course.id}`);
+    await fetchCourseData();
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: 'Ошибка подписки на курс',
+      detail: `${getErrorMessage(error)}`,
+      life: 4000
+    });
+  }
+}
 
-      } catch (error) {
-        alert(getErrorMessage(error));
-      }
-    },
-    async deleteCourse() {
-      try {
-        await apiClient.post(`api/course/delete/${this.course.id}`);
-        this.$router.push({name: 'AllCoursesPage'});
-      } catch (error) {
-        alert(getErrorMessage(error));
-      }
-    },
-    async leaveCourse() {
-      try {
-        await apiClient.post(`api/course/unsubscribe/${this.course.id}`);
-        this.isConnected = false;
-        this.$router.push({name: 'AllCoursesPage'});
-      } catch (error) {
-        console.log('error', error)
-        alert(getErrorMessage(error));
-      }
-    },
 
-    async subscribeCourse() {
-      try {
-        await apiClient.post(`api/course/subscribe/${this.course.id}`);
-        this.isConnected = true;
-      } catch (error) {
-        alert(getErrorMessage(error));
-      }
-    },
-    addLesson() {
-    },
-  },
-};
+const deleteCourse = async () => {
+  loader.show();
+  try {
+    await apiClient.post(`api/course/delete/${courseId}`);
+    await router.push({
+      name: 'MyCoursesPage'
+    })
+    toast.add({
+      severity: 'success',
+      summary: 'Курс успешно удален!',
+      life: 4000
+    });
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: 'Ошибка при удалении курса',
+      detail: `${getErrorMessage(error)}`,
+      life: 4000
+    });
+  } finally {
+    loader.hide();
+  }
+}
+
+const copyCode = () => {
+  navigator.clipboard.writeText(courseData.value.code)
+      .then(() => {
+        toast.add({
+          severity: 'success',
+          summary: 'Код скопирован!',
+          life: 4000
+        });
+      })
+      .catch(() => {
+        toast.add({
+          severity: 'error',
+          summary: 'Не удалось скопировать код.',
+          life: 4000
+        });
+      });
+}
+
+const fetchCourseData = async () => {
+  loader.show()
+  try {
+    const response = await apiClient.get(`/api/course?id=${courseId}`);
+    courseData.value = response.data.data.course;
+    isAuthor.value = response.data.data.isAuthor;
+    isConnected.value = response.data.data.isConnected;
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: 'Ошибка при получении курсов',
+      detail: `${getErrorMessage(error)}`,
+      life: 4000
+    });
+  } finally {
+    loader.hide()
+  }
+}
+
+onMounted(async () => {
+  if (courseId) {
+    await fetchCourseData();
+  } else {
+    alert('ID курса не указан');
+  }
+})
 </script>
 
 <style scoped>
-.course-page {
-  padding: 10px;
-}
 
 .course-header {
   display: flex;
@@ -183,46 +194,6 @@ export default {
   display: flex;
   align-items: center;
   gap: 10px;
-
-  .delete-course{
-    background-color: #ed7777;
-
-    &:hover{
-      background-color: #f1b0b0;
-    }
-  }
-
-  .subs-course{
-    background-color: #6fc371;
-
-    &:hover{
-      background-color: #b1ddb1;
-    }
-  }
-}
-
-.course-code-container {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  background-color: #babfea;
-  padding: 10px;
-  border-radius: 14px;
-  opacity: 0.7;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #cfd2e3;
-  }
-}
-
-.course-code {
-  font-weight: bold;
-  color: #2e2d2d;
-  cursor: pointer;
-}
-
-.course-description {
 }
 
 .lessons-section {
@@ -234,33 +205,9 @@ export default {
   align-items: center;
 }
 
-.add-lesson-btn {
-  padding: 5px 10px;
-  border: none;
-  border-radius: 50%;
-  background-color: #6d7cf2;
-  color: white;
-  cursor: pointer;
-  font-size: 16px;
-  margin-left: 15px;
-}
-
 .lessons-list {
   list-style: none;
   padding: 0;
   margin: 0;
-}
-
-.lesson-item {
-  margin-bottom: 10px;
-}
-
-.lesson-link {
-  text-decoration: none;
-  color: #6d7cf2;
-}
-
-.lesson-link:hover {
-  text-decoration: underline;
 }
 </style>

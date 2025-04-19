@@ -25,9 +25,9 @@ apiClient.interceptors.response.use(
       if (error.response.status === 401) {
         localStorage.removeItem('token');
 
-        router.push({ name: 'Auth' });
+        router.push({ name: 'LoginPage' });
 
-        if (router.currentRoute.value.name !== 'Auth') {
+        if (router.currentRoute.value.name !== 'LoginPage') {
           alert('Ваша сессия истекла. Пожалуйста, войдите снова.');
         }
       }
