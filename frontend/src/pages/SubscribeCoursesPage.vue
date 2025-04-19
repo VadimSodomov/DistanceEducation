@@ -12,7 +12,7 @@
           </FloatLabel>
 
           <Button
-              icon="pi pi-check"
+              label="Найти"
               @click="findCourse"
               :loading="loadingFind"
               :disabled="isFindCourseDisabled"
@@ -45,7 +45,7 @@
                   severity="danger"
                   variant="outlined"
                   icon="pi pi-sign-out"
-                  @click="deleteCourse(course.course.id)"
+                  @click="unsubscribeCourse(course.course.id)"
               />
             </div>
           </template>
@@ -106,20 +106,20 @@ const findCourse = async () => {
   }
 }
 
-const deleteCourse = async (courseId) => {
+const unsubscribeCourse = async (courseId) => {
   loader.show();
   try {
-    await apiClient.post(`api/course/delete/${courseId}`);
+    await apiClient.post(`api/course/unsubscribe/${courseId}`);
     await fetchCourses()
     toast.add({
       severity: 'success',
-      summary: 'Курс успешно удален!',
+      summary: 'Вы успешно покинули курс!',
       life: 4000
     });
   } catch (error) {
     toast.add({
       severity: 'error',
-      summary: 'Ошибка при удалении курса',
+      summary: 'Ошибка при покидании курса',
       detail: `${getErrorMessage(error)}`,
       life: 4000
     });

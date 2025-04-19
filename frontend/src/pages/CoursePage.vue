@@ -85,7 +85,7 @@ const isConnected = ref(false)
 
 const leaveCourse = async () => {
   try {
-    await apiClient.post(`api/course/unsubscribe/${this.course.id}`);
+    await apiClient.post(`api/course/unsubscribe/${courseId}`);
     await fetchCourseData();
   } catch (error) {
     toast.add({
@@ -99,7 +99,7 @@ const leaveCourse = async () => {
 
 const subscribeCourse = async () => {
   try {
-    await apiClient.post(`api/course/subscribe/${this.course.id}`);
+    await apiClient.post(`api/course/subscribe/${courseId}`);
     await fetchCourseData();
   } catch (error) {
     toast.add({
