@@ -139,7 +139,6 @@ const copyCode = () => {
         });
       });
 }
-
 </script>
 
 <style lang="scss" scoped>

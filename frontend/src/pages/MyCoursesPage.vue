@@ -9,7 +9,7 @@
     </div>
     <div class="cards-container">
       <div v-for="course in courses" :key="course.id">
-        <Card class="card" @click="openCourse(course.id)">
+        <Card class="card">
           <template #title>{{ course.name }}</template>
           <template #content>
             <p class="m-0">
@@ -19,9 +19,15 @@
           <template #footer>
             <div class="flex gap-4 mt-1">
               <Button
+                  label="Перейти"
+                  severity="secondary"
+                  variant="outlined"
+                  @click="openCourse(course.id)"
+              />
+              <Button
                   severity="danger"
                   variant="outlined"
-                  :icon="PrimeIcons.PLUS"
+                  icon="pi pi-trash"
                   @click="deleteCourse(course.id)"
               />
             </div>
@@ -126,7 +132,6 @@ onMounted(async () => {
   margin: 10px;
   width: 210px;
   display: flex;
-  cursor: pointer;
 }
 
 :deep(.p-card-title) {
@@ -135,10 +140,6 @@ onMounted(async () => {
   border-radius: var(--p-border-radius-xl) var(--p-border-radius-xl) 0 0;
   color: var(--p-content-background);
   height: 100px;
-
-  &:hover {
-    background-color: var(--p-primary-hover-color);
-  }
 }
 
 :deep(.p-card-body) {

@@ -21,8 +21,8 @@ readonly class LessonDTO
     public int $courseId;
 
     #[Assert\Regex(
-        pattern: '/^\d{2}-\d{2}-\d{4}$/',
-        message: 'Некорректный формат даты. Ожидается формат "дд-мм-гггг".'
+        pattern: '/^\d{2}-\d{2}-\d{4} \d{2}:\d{2}:\d{2}$/',
+        message: 'Некорректный формат даты. Ожидается формат "дд-мм-гггг чч:мм:сс".'
     )]
     #[Assert\Type(type: 'string')]
     #[Assert\Null]
