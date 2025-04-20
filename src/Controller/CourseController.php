@@ -7,14 +7,12 @@ namespace App\Controller;
 use App\DTO\CourseDTO;
 use App\Entity\Course;
 use App\Entity\CourseUser;
-use App\Entity\User;
 use App\Helper\HashHelper;
 use App\Repository\CourseRepository;
 use App\Repository\CourseUserRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
@@ -23,38 +21,22 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class CourseController extends AbstractController
 {
-    private User $user;
+    use SecurityTrait;
 
     public function __construct(
-        Security                                $security,
-        UserRepository                          $userRepository,
+        readonly private UserRepository         $userRepository,
         readonly private EntityManagerInterface $entityManager,
         readonly private CourseRepository       $courseRepository,
         readonly private CourseUserRepository   $courseUserRepository,
     )
     {
-        $authUser = $security->getUser();
-        $user = $userRepository->findOneBy(['authUser' => $authUser]);
-
-        if ($user === null) {
-            throw $this->createAccessDeniedException();
-        }
-
-        $this->user = $user;
-    }
-
-    //TODO: перенести в юзер контроллер
-    #[Route('api/user', name: 'api_user', methods: ['GET'], format: 'json')]
-    public function getCurrentUser(): JsonResponse
-    {
-        return $this->json(['user' => $this->user]);
     }
 
     #[Route('api/course/all', name: 'api_course_all', methods: ['GET'], format: 'json')]
     public function getAll(): JsonResponse
     {
-        $coursesUser = $this->courseUserRepository->findBy(['user' => $this->user]);
-        $coursesAuthored = $this->courseRepository->findBy(['author' => $this->user]);
+        $coursesUser = $this->courseUserRepository->findBy(['user' => $this->getCurrentUser()]);
+        $coursesAuthored = $this->courseRepository->findBy(['author' => $this->getCurrentUser()]);
 
         return $this->json(
             [
@@ -86,7 +68,7 @@ class CourseController extends AbstractController
         }
 
         $courseUser = $this->courseUserRepository->findOneBy([
-            'user' => $this->user,
+            'user' => $this->getCurrentUser(),
             'course' => $course,
         ]);
 
@@ -95,7 +77,7 @@ class CourseController extends AbstractController
                 'data' => [
                     'course' => $course,
                     'isConnected' => $courseUser !== null,
-                    'isAuthor' => $course->getAuthor() === $this->user,
+                    'isAuthor' => $course->getAuthor() === $this->getCurrentUser(),
                 ]
             ]
         );
@@ -107,7 +89,7 @@ class CourseController extends AbstractController
         $code = HashHelper::getHash($courseDTO->name);
 
         $course = new Course();
-        $course->update($this->user, $courseDTO->name, $courseDTO->description, $code);
+        $course->update($this->getCurrentUser(), $courseDTO->name, $courseDTO->description, $code);
 
         $this->entityManager->persist($course);
         $this->entityManager->flush();
@@ -123,11 +105,15 @@ class CourseController extends AbstractController
         format: 'json'
     )]
     public function edit(
-        Course $course,
+        Course                         $course,
         #[MapRequestPayload] CourseDTO $courseDTO
     ): JsonResponse
     {
-        $course->update($this->user, $courseDTO->name, $courseDTO->description);
+        if ($course->getAuthor() !== $this->getCurrentUser()) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $course->update($this->getCurrentUser(), $courseDTO->name, $courseDTO->description);
         $this->entityManager->persist($course);
         $this->entityManager->flush();
 
@@ -143,6 +129,10 @@ class CourseController extends AbstractController
     )]
     public function delete(Course $course): JsonResponse
     {
+        if ($course->getAuthor() !== $this->getCurrentUser()) {
+            throw $this->createAccessDeniedException();
+        }
+
         $this->entityManager->remove($course);
         $this->entityManager->flush();
 
@@ -158,12 +148,12 @@ class CourseController extends AbstractController
     )]
     public function subscribe(Course $course): JsonResponse
     {
-        if ($this->courseUserRepository->findOneBy(['course' => $course, 'user' => $this->user]) !== null) {
+        if ($this->courseUserRepository->findOneBy(['course' => $course, 'user' => $this->getCurrentUser()]) !== null) {
             return $this->json(['error' => 'Вы уже подписаны на курс!'], Response::HTTP_CONFLICT);
         }
 
         $courseUser = new CourseUser();
-        $courseUser->update($this->user, $course);
+        $courseUser->update($this->getCurrentUser(), $course);
 
         $this->entityManager->persist($courseUser);
         $this->entityManager->flush();
@@ -179,7 +169,7 @@ class CourseController extends AbstractController
     )]
     public function unsubscribe(Course $course): JsonResponse
     {
-        $coursesUser = $this->courseUserRepository->findBy(['course' => $course, 'user' => $this->user]);
+        $coursesUser = $this->courseUserRepository->findBy(['course' => $course, 'user' => $this->getCurrentUser()]);
 
         if ($coursesUser === []) {
             return $this->json(['error' => 'Вы не подписаны на курс'], Response::HTTP_CONFLICT);
