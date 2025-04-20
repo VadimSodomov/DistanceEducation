@@ -2,7 +2,7 @@
   <Toast/>
   <Dialog
       v-model:visible="visibleModel"
-      :header="dialogHeader"
+      header="Создание урока"
       :modal="true"
       :style="{ width: '450px' }"
   >
@@ -11,9 +11,6 @@
           v-model="lessonData.name"
           placeholder="Название"
       />
-      <!-- Дедлайн именно тут, потому что если он в конце, не хватает места развернуться календарю
-      вниз и он разворачивется вверх, не очень.
-      Если поставить первым, чуть не влезает всплывающая метка. Пока тут поэтому -->
       <FloatLabel variant="on">
         <DatePicker
             v-model="lessonData.deadline"
@@ -30,17 +27,16 @@
           placeholder="Описание"
           style="resize: none; height: 150px"
       />
-      <!-- Убрала автоматическую загрузку здесь (когда компонент сам отправляет данные) и кнопку Загрузить,
-      оставила только кнопки Выбрать и Отмена, так как Загрузить отдельно для пользователя не особо интуитивно понятно,
-      пользователь ожидает, что все загрузится как только он нажмет Создать, а не чтобы нужно было отдельно нажать Загрузить.
-      А запросами будем отправлять разными, если хотите. Отдельно данные урока в saveLesson, отдельно файлы в onUpload. -->
       <FileUpload
           :customUpload="true"
-          @upload="onUpload($event)"
+          @select="onFileSelect"
+          @remove="onFileRemove"
+          @clear="clearAllFiles"
           :multiple="true"
           :showUploadButton="false"
           choose-label="Выбрать"
-          cancel-label="Отмена">
+          cancel-label="Отмена"
+      >
         <template #empty>
           <span>Загрузите материалы. Перетащите файлы сюда.</span>
         </template>
@@ -81,6 +77,7 @@ const emits = defineEmits(['update:visible', 'updateData']);
 
 const isCreated = ref(false)
 const loadingCreate = ref(false)
+const fileList = ref([]);
 
 const props = defineProps({
   visible: Boolean,
@@ -107,11 +104,17 @@ const isBtnDisabled = computed(() => {
   return !(lessonData.value.name && lessonData.value.description && lessonData.value.deadline)
 })
 
-const dialogHeader = computed(() =>
-    isCreated.value
-        ? `Урок "${lessonData.value.name}" успешно создан!`
-        : 'Создание урока'
-);
+const onFileSelect = (event) => {
+  fileList.value = [...fileList.value, ...event.files];
+};
+
+const onFileRemove = (event) => {
+  fileList.value = fileList.value.filter(f => f.name !== event.file.name);
+};
+
+const clearAllFiles = () => {
+  fileList.value = [];
+};
 
 const closeDialog = () => {
   emits('update:visible', false);
@@ -142,11 +145,20 @@ const saveLesson = async () => {
     const dataLesson = await apiClient.post('api/lesson/create', {
       name: lessonData.value.name,
       description: lessonData.value.description,
-      hwDeadline: lessonData.value.deadline? formatDateToDDMMYYYYHHMMSS(lessonData.value.deadline) : null,
+      hwDeadline: lessonData.value.deadline ? formatDateToDDMMYYYYHHMMSS(lessonData.value.deadline) : null,
       courseId: props.courseId
     });
+
+    // await dataLesson.id запрос на отправку материалов fileList
+
     emits('updateData');
+    closeDialog()
     isCreated.value = true;
+    toast.add({
+      severity: 'success',
+      summary: 'Урок успешно создан',
+      life: 4000
+    });
   } catch (error) {
     toast.add({
       severity: 'error',
@@ -156,21 +168,6 @@ const saveLesson = async () => {
     });
   } finally {
     loadingCreate.value = false
-  }
-}
-
-// Отдельным запросом вроде решили отправлять файлы
-const onUpload = async (event) => {
-  const filePaths = new FormData()
-
-  for (const file of event.files) {
-    filePaths.append('files[]', file)
-  }
-
-  try {
-    // запрос будет тут
-  } catch (err) {
-    console.error('Ошибка загрузки:', err)
   }
 }
 </script>

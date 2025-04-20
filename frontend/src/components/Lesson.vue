@@ -1,11 +1,13 @@
 <template>
   <div @click="toggleExpand" class="card-wrapper">
-    <Card>
+    <Card :class="{ 'expanded-mode': isExpanded }">
       <template #title>{{ isEditing ? editData.name : lesson.name }}</template>
       <template #subtitle>
-        {{ isEditing
-          ? ''
-          : (lesson.hwDeadline ? 'Дедлайн: ' + formatDeadline(lesson.hwDeadline) : 'Без дедлайна') }}
+        {{
+          isEditing
+              ? ''
+              : (lesson.hwDeadline ? 'Дедлайн: ' + formatDeadline(lesson.hwDeadline) : 'Без дедлайна')
+        }}
       </template>
       <template #content>
         <div class="editing-content" v-if="isEditing">
@@ -42,7 +44,7 @@
         </div>
         <div v-else>
           <p class="m-0">
-            {{lesson.description}}
+            {{ lesson.description }}
           </p>
           <div v-if="isExpanded && lesson.filePaths?.length" class="file-list">
             <p>Материалы:</p>
@@ -50,7 +52,7 @@
               <li v-for="(path, index) in lesson.filePaths" :key="index">
                 <Button :label="extractFileName(path)"
                         @click.stop="openFile(path)"
-                        link />
+                        link/>
               </li>
             </ul>
           </div>
@@ -64,8 +66,8 @@
                   @click.stop="startEdit"/>
           <template v-else>
             <Button label="Сохранить"
-                    @click.stop="saveEdit" />
-            <Button label="Отмена" severity="secondary" @click.stop="cancelEdit" />
+                    @click.stop="saveEdit"/>
+            <Button label="Отмена" severity="secondary" @click.stop="cancelEdit"/>
           </template>
           <Button label="Удалить урок"
                   severity="danger"
@@ -77,14 +79,14 @@
 </template>
 
 <script setup>
-import { defineEmits, defineProps } from 'vue';
+import {defineEmits, defineProps} from 'vue';
 import Card from 'primevue/card';
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 import Textarea from 'primevue/textarea';
 import DatePicker from 'primevue/datepicker';
 import FileUpload from 'primevue/fileupload';
-import { ref } from 'vue';
+import {ref} from 'vue';
 import {loader} from "@/utils/loader.js";
 import {getErrorMessage} from "@/utils/ErrorHelper.js";
 import FloatLabel from "primevue/floatlabel";
@@ -161,6 +163,9 @@ const saveEdit = async () => {
   try {
     loader.show();
     // запрос на обновление урока сюда
+
+    // await dataLesson.id запрос на отправку материалов fileList
+
     isEditing.value = false;
     emit('update');
   } catch (e) {
@@ -190,6 +195,7 @@ const openFile = (path) => {
   window.open(url, '_blank');
 };
 
+// TODO этого запроса быть не должно. сделать как в попапе создания урока
 const onUpload = async (event) => {
   const filePaths = new FormData()
 
@@ -216,5 +222,9 @@ const onUpload = async (event) => {
 }
 .card-wrapper:hover {
   box-shadow: 0 0 9px rgba(0, 0, 0, 0.1);
+}
+
+:deep(.p-card.expanded-mode) {
+  border: 1px solid var(--p-button-primary-background);
 }
 </style>
