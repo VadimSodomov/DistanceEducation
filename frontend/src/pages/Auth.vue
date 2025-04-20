@@ -86,6 +86,9 @@ const disabledBtn = computed(() => {
 
 const handleLogin = async () => {
   isLoading.value = true;
+
+  const defaultMessage = isEntry.value ? 'Неверный логин или пароль' : 'Ошибка при регистрации';
+
   try {
     const endpoint = isEntry.value ? '/api/login' : '/api/register';
     const response = await apiClient.post(endpoint, {
@@ -101,7 +104,7 @@ const handleLogin = async () => {
     toast.add({
       severity: 'error',
       summary: 'Ошибка',
-      detail: getErrorMessage(error),
+      detail: getErrorMessage(error, defaultMessage),
       life: 4000
     });
   } finally {

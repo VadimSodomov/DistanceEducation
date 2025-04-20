@@ -13,8 +13,6 @@ use App\Repository\AuthUserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -31,12 +29,8 @@ class AuthController extends AbstractController
     }
 
     #[Route('/api/login', name: 'api_login_process', methods: ['POST'])]
-    public function loginProcess(
-        Security                         $security,
-        #[MapRequestPayload] AuthUserDTO $authDTO
-    ): Response
+    public function loginProcess()
     {
-        return $this->loginHandler($authDTO, RoleEnum::USER->value, $security);
     }
 
     #[Route('/api/register', name: 'api_register_process', methods: ['POST'])]
@@ -73,25 +67,5 @@ class AuthController extends AbstractController
             ],
             Response::HTTP_CREATED
         );
-    }
-
-    private function loginHandler(
-        AuthUserDTO $authDTO,
-        string      $role,
-        Security    $security
-    ): JsonResponse
-    {
-        $user = $this->authUserRepository->findOneByEmail($authDTO->email);
-
-        if (is_null($user) || !in_array($role, $user->getRoles())) {
-            return $this->json(['error' => 'Пользователь не найден'], Response::HTTP_UNAUTHORIZED);
-        }
-
-        if (!$this->passwordHasher->isPasswordValid($user, $authDTO->password)) {
-            return $this->json(['error' => 'Неверный пароль'], Response::HTTP_UNAUTHORIZED);
-        }
-
-        $security->login($user);
-        return $this->json(['message' => 'success'], Response::HTTP_OK);
     }
 }
