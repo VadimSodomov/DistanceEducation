@@ -1,41 +1,43 @@
 <template>
-    <Loader/>
-  <Toolbar
-      v-if="route.name !== 'LoginPage'"
-      style="border-radius: 3rem; padding: 1rem 1rem 1rem 1.5rem; margin-top: 20px">
-    <template #center>
-      <div class="flex items-center gap-2">
-        <Button
-            label="Мои курсы"
-            text
-            plain
-            @click="goToPage('MyCoursesPage')"
-        />
-        <Button
-            label="Курсы в подписках"
-            text
-            plain
-            @click="goToPage('SubscribeCoursesPage')"
-        />
-      </div>
-    </template>
+  <Loader/>
+  <div class="toolbar">
+    <Toolbar
+        v-if="route.name !== 'LoginPage'"
+        style="border-radius: 3rem; padding: 1rem 1rem 1rem 1.5rem; margin-top: 20px">
+      <template #center>
+        <div class="flex items-center gap-2">
+          <Button
+              label="Мои курсы"
+              text
+              plain
+              @click="goToPage('MyCoursesPage')"
+          />
+          <Button
+              label="Курсы в подписках"
+              text
+              plain
+              @click="goToPage('SubscribeCoursesPage')"
+          />
+        </div>
+      </template>
 
-    <template #end>
-      <div class="flex items-center gap-2">
-        <Button
-            :label="userName"
-            severity="secondary"
-            @click="toggle"
-        />
-        <Menu
-            id="user_menu"
-            ref="menu"
-            :model="items"
-            :popup="true"
-        />
-      </div>
-    </template>
-  </Toolbar>
+      <template #end>
+        <div class="flex items-center gap-2">
+          <Button
+              :label="userName"
+              severity="secondary"
+              @click="toggle"
+          />
+          <Menu
+              id="user_menu"
+              ref="menu"
+              :model="items"
+              :popup="true"
+          />
+        </div>
+      </template>
+    </Toolbar>
+  </div>
   <router-view />
 </template>
 

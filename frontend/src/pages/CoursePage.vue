@@ -38,19 +38,27 @@
         <div class="lessons-header">
           <h2>Уроки</h2>
           <Button
-              label="+"
+              icon="pi pi-plus"
               v-if="isAuthor"
               rounded
-              @click=""
+              size="small"
+              @click="showCreateLessonPopup = true"
           />
         </div>
         <ul class="lessons-list">
           <li v-for="lesson in courseData.lessons" :key="lesson.id">
-
+            <Lesson :lesson="lesson"
+                    :is-author="isAuthor"
+                    @delete="deleteLesson"/>
           </li>
         </ul>
       </div>
     </div>
+    <CreateLessonPopup
+        v-model:visible="showCreateLessonPopup"
+        :course-id="courseId"
+        @updateData="fetchCourseData"
+    />
   </div>
 </template>
 
@@ -62,6 +70,8 @@ import {useRoute, useRouter} from "vue-router";
 import { onMounted, ref} from "vue";
 import {loader} from '@/utils/loader';
 import {Toast, useToast} from "primevue";
+import CreateLessonPopup from "@/components/CreateLessonPopup.vue";
+import Lesson from "@/components/Lesson.vue";
 
 const toast = useToast()
 const route = useRoute()
@@ -82,6 +92,7 @@ const courseData = ref({
 
 const isAuthor = ref(false)
 const isConnected = ref(false)
+const showCreateLessonPopup = ref(false)
 
 const leaveCourse = async () => {
   try {
@@ -173,6 +184,28 @@ const fetchCourseData = async () => {
   }
 }
 
+const deleteLesson = async (lessonId) => {
+  loader.show();
+  try {
+    await apiClient.post(`/api/lesson/delete/${lessonId}`);
+    await fetchCourseData()
+    toast.add({
+      severity: 'success',
+      summary: 'Урок успешно удален!',
+      life: 4000
+    });
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: 'Ошибка при удалении урока',
+      detail: `${getErrorMessage(error)}`,
+      life: 4000
+    });
+  } finally {
+    loader.hide();
+  }
+}
+
 onMounted(async () => {
   if (courseId) {
     await fetchCourseData();
@@ -203,9 +236,13 @@ onMounted(async () => {
 .lessons-header {
   display: flex;
   align-items: center;
+  gap: 10px;
 }
 
 .lessons-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
   list-style: none;
   padding: 0;
   margin: 0;
