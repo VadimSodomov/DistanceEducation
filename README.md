@@ -2,15 +2,13 @@
 ## После того, как взяли новую задачу или обновили ветку от дева
 **Сборка бэкенда:** установка зависимостей, запуск миграций (при выполнении запрашивается разрешение), запуск symfony сервера
 ```sh
-.\run-backend.ps1
+composer install --ignore-platform-reqs && php bin/console doctrine:migrations:migrate && symfony server:stop && symfony server:start --port=8080 --listen-ip=0.0.0.0
 ```
 
 **Сборка фронтенда:** установка зависимостей, сборка, запуска сервера для фронта
 ```sh
-.\run-frontend.ps1
+cd frontend && npm install && npm run dev
 ```
-
-Все запускаемые команды можно посмотреть в этих файлах, я решил упростить запуск и сделать сборку фронта и бэка одной командой.
 
 Приложение будет доступно по http://localhost:5173/
 
