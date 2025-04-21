@@ -7,6 +7,7 @@ namespace App\Entity;
 use App\Repository\LessonUserRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Ignore;
 
 #[ORM\Entity(repositoryClass: LessonUserRepository::class)]
 class LessonUser
@@ -50,6 +51,7 @@ class LessonUser
         return $this;
     }
 
+    #[Ignore]
     public function getLesson(): ?Lesson
     {
         return $this->lesson;

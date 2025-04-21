@@ -10,10 +10,10 @@ use App\Entity\AuthUser;
 use App\Entity\User;
 use App\Enum\RoleEnum;
 use App\Repository\AuthUserRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
@@ -22,21 +22,20 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class AuthController extends AbstractController
 {
+    use SecurityTrait;
+
     public function __construct(
         readonly private AuthUserRepository          $authUserRepository,
         readonly private UserPasswordHasherInterface $passwordHasher,
         readonly private EntityManagerInterface      $entityManager,
+        readonly private UserRepository              $userRepository,
     )
     {
     }
 
     #[Route('/api/login', name: 'api_login_process', methods: ['POST'])]
-    public function loginProcess(
-        Security                         $security,
-        #[MapRequestPayload] AuthUserDTO $authDTO
-    ): Response
+    public function loginProcess()
     {
-        return $this->loginHandler($authDTO, RoleEnum::USER->value, $security);
     }
 
     #[Route('/api/register', name: 'api_register_process', methods: ['POST'])]
@@ -44,12 +43,12 @@ class AuthController extends AbstractController
         JWTTokenManagerInterface         $jwtManager,
         #[MapRequestPayload] UserDTO     $userDTO,
         #[MapRequestPayload] AuthUserDTO $authDTO
-    ): Response
+    ): JsonResponse
     {
         $authUser = $this->authUserRepository->findOneByEmail($authDTO->email);
 
         if ($authUser !== null) {
-            return $this->json(['error' => 'Пользователь уже существует'], Response::HTTP_CONFLICT);
+            return $this->json(['error' => 'Пользователь с этой почтой уже существует'], Response::HTTP_CONFLICT);
         }
 
         $authUser = new AuthUser();
@@ -75,23 +74,9 @@ class AuthController extends AbstractController
         );
     }
 
-    private function loginHandler(
-        AuthUserDTO $authDTO,
-        string      $role,
-        Security    $security
-    ): JsonResponse
+    #[Route('api/user', name: 'api_user', methods: ['GET'], format: 'json')]
+    public function currentUser(): JsonResponse
     {
-        $user = $this->authUserRepository->findOneByEmail($authDTO->email);
-
-        if (is_null($user) || !in_array($role, $user->getRoles())) {
-            return $this->json(['error' => 'Пользователь не найден'], Response::HTTP_UNAUTHORIZED);
-        }
-
-        if (!$this->passwordHasher->isPasswordValid($user, $authDTO->password)) {
-            return $this->json(['error' => 'Неверный пароль'], Response::HTTP_UNAUTHORIZED);
-        }
-
-        $security->login($user);
-        return $this->json(['message' => 'success'], Response::HTTP_OK);
+        return $this->json(['user' => $this->getCurrentUser()]);
     }
 }
