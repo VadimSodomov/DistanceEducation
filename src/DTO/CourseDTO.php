@@ -13,6 +13,7 @@ readonly class CourseDTO
     public string $name;
 
     #[Assert\Type(type: 'string')]
+    #[Assert\Length(max: 400, maxMessage: 'Превышено допустимое количество символов (400)')]
     public ?string $description;
 
     public function __construct(string $name, ?string $description = null)

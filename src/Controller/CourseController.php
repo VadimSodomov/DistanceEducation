@@ -139,6 +139,7 @@ class CourseController extends AbstractController
         return $this->json(['message' => 'Курс успешно удален'], Response::HTTP_OK);
     }
 
+    // TODO Надо переделать подключение по коду, а не по id, и на фронте тоже
     #[Route(
         'api/course/subscribe/{id}',
         name: 'api_course_subscribe',
@@ -148,6 +149,13 @@ class CourseController extends AbstractController
     )]
     public function subscribe(Course $course): JsonResponse
     {
+        if ($course->getAuthor() === $this->getCurrentUser()) {
+            return $this->json(
+                ['error' => 'Вы не можете подписаться на курс, так как являетесь его автором'],
+                Response::HTTP_CONFLICT
+            );
+        }
+
         if ($this->courseUserRepository->findOneBy(['course' => $course, 'user' => $this->getCurrentUser()]) !== null) {
             return $this->json(['error' => 'Вы уже подписаны на курс!'], Response::HTTP_CONFLICT);
         }
