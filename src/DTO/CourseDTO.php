@@ -6,7 +6,7 @@ namespace App\DTO;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-readonly class CourseDTO
+class CourseDTO
 {
     #[Assert\NotBlank(message: 'Название курса не указано')]
     #[Assert\Type(type: 'string')]
