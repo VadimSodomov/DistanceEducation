@@ -132,7 +132,7 @@ class Lesson
         return $this->lessonUser;
     }
     
-    public function update(string $name, Course $course, ?string $description=null, ?\DateTimeInterface $hwDeadline): void
+    public function update(string $name, Course $course, ?string $description, ?\DateTimeInterface $hwDeadline): void
     {
         $this->name = $name;
         $this->course = $course;
