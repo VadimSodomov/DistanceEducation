@@ -106,7 +106,8 @@ const saveCourse = async () => {
     });
     courseData.value = {
       name: dataCourse.data.data.name,
-      description: dataCourse.data.data.code
+      description: dataCourse.data.data.description,
+      code: dataCourse.data.data.code,
     };
     emits('updateData');
     isCreated.value = true;
