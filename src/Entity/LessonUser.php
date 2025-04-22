@@ -39,6 +39,9 @@ class LessonUser
     #[ORM\OneToMany(targetEntity: LessonUserFile::class, mappedBy: 'lessonUser', cascade: ['persist', 'remove'])]
     private Collection $lessonUserFiles;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $comment = null;
+
     public function __construct()
     {
         $this->lessonUserFiles = new ArrayCollection();
@@ -124,6 +127,18 @@ class LessonUser
                 $lessonUserFile->setLessonUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getComment(): ?string
+    {
+        return $this->comment;
+    }
+
+    public function setComment(?string $comment): static
+    {
+        $this->comment = $comment;
 
         return $this;
     }
