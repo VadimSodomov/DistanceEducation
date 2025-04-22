@@ -33,8 +33,8 @@ class Lesson
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $hwDeadline = null;
 
-    #[ORM\Column(type: Types::TEXT, nullable: true, unique: true)]
-    private ?string $filePath = null;
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $video = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $createdAt = null;
@@ -43,10 +43,18 @@ class Lesson
     #[ORM\OneToMany(targetEntity: LessonUser::class, mappedBy: 'lesson', cascade: ['persist', 'remove'])]
     private Collection $lessonUser;
 
+    /**
+     * @var Collection<int, LessonFile>
+     */
+    #[Ignore]
+    #[ORM\OneToMany(targetEntity: LessonFile::class, mappedBy: 'lesson', cascade: ['persist', 'remove'])]
+    private Collection $lessonFiles;
+
     public function __construct()
     {
         $this->createdAt = new \DateTime('now', new \DateTimeZone('Europe/Moscow'));
         $this->lessonUser = new ArrayCollection();
+        $this->lessonFiles = new ArrayCollection();
     }
 
 
@@ -103,14 +111,14 @@ class Lesson
         return $this;
     }
 
-    public function getFilePath(): ?string
+    public function getVideo(): ?string
     {
-        return $this->filePath;
+        return $this->video;
     }
 
-    public function setFilePath(?string $filePath): static
+    public function setVideo(?string $video): static
     {
-        $this->filePath = $filePath;
+        $this->video = $video;
 
         return $this;
     }
@@ -142,5 +150,35 @@ class Lesson
         if ($hwDeadline !== null) {
             $this->hwDeadline = $hwDeadline;
         }
+    }
+
+    /**
+     * @return Collection<int, LessonFile>
+     */
+    public function getLessonFiles(): Collection
+    {
+        return $this->lessonFiles;
+    }
+
+    public function addLessonFile(LessonFile $lessonFile): static
+    {
+        if (!$this->lessonFiles->contains($lessonFile)) {
+            $this->lessonFiles->add($lessonFile);
+            $lessonFile->setLesson($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLessonFile(LessonFile $lessonFile): static
+    {
+        if ($this->lessonFiles->removeElement($lessonFile)) {
+            // set the owning side to null (unless already changed)
+            if ($lessonFile->getLesson() === $this) {
+                $lessonFile->setLesson(null);
+            }
+        }
+
+        return $this;
     }
 }
