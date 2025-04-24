@@ -2,12 +2,12 @@
 ## После того, как взяли новую задачу или обновили ветку от дева
 **Сборка бэкенда:** установка зависимостей, запуск миграций (при выполнении запрашивается разрешение), запуск symfony сервера
 ```sh
-composer install --ignore-platform-reqs && php bin/console doctrine:migrations:migrate && symfony server:stop && symfony server:start --port=8080 --listen-ip=0.0.0.0
+composer install --ignore-platform-reqs ; php bin/console doctrine:migrations:migrate ; symfony server:stop ; symfony server:start --port=8080 --listen-ip=0.0.0.0
 ```
 
 **Сборка фронтенда:** установка зависимостей, сборка, запуска сервера для фронта
 ```sh
-cd frontend && npm install && npm run dev
+cd frontend ; npm install ; npm run dev
 ```
 
 Приложение будет доступно по http://localhost:5173/
