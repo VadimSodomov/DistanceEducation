@@ -18,6 +18,19 @@ class CourseUserRepository extends ServiceEntityRepository
         parent::__construct($registry, CourseUser::class);
     }
 
+    public function isParticipant(int $courseId, int $userId): bool
+    {
+        $result = $this->createQueryBuilder('cu')
+            ->andWhere('cu.course = :courseId')
+            ->andWhere('cu.user = :userId')
+            ->setParameter('courseId', $courseId)
+            ->setParameter('userId', $userId)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        return $result !== null;
+    }
+
 //    /**
 //     * @return CourseUser[] Returns an array of CourseUser objects
 //     */

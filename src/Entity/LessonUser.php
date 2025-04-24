@@ -94,10 +94,9 @@ class LessonUser
         return $this->uploaded_at;
     }
 
-    public function setUploadedAt(\DateTimeInterface $uploaded_at): static
+    public function setUploadedAt(string $uploaded_at = 'now'): static
     {
-        $this->uploaded_at = $uploaded_at;
-
+        $this->uploaded_at = new \DateTime($uploaded_at);
         return $this;
     }
 
