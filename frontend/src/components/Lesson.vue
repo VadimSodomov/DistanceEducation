@@ -56,7 +56,13 @@
               </li>
             </ul>
           </div>
-          <p v-if="isAuthor && isExpanded">Статистика тут когда-нибудь будет</p>
+          <div v-if="isAuthor && isExpanded" style="width: 30%">
+            <p><strong>Статистика</strong></p>
+            <Chart type="pie"
+                   :data="chartData"
+                   :options="chartOptions"
+                   class="w-full md:w-[30rem]" />
+          </div>
         </div>
       </template>
       <template #footer v-if="isAuthor && isExpanded">
@@ -91,6 +97,7 @@ import {loader} from "@/utils/loader.js";
 import {getErrorMessage} from "@/utils/ErrorHelper.js";
 import FloatLabel from "primevue/floatlabel";
 import {useToast} from "primevue";
+import Chart from 'primevue/chart';
 
 const toast = useToast()
 
@@ -209,6 +216,31 @@ const onUpload = async (event) => {
     console.error('Ошибка загрузки:', err)
   }
 }
+
+// СТАТИСТИКА
+
+const chartData = {
+  labels: ['Сдано', 'Не сдано'],
+  datasets: [
+    {
+      data: [70, 30], // сюда потом вставить процент сданных и несданных
+      backgroundColor: ['#14b8a6', '#f44336'],
+      hoverBackgroundColor: ['#339a89', '#e57373']
+    }
+  ]
+};
+
+const chartOptions = {
+  responsive: true,
+  plugins: {
+    legend: {
+      position: 'bottom',
+    },
+    tooltip: {
+      enabled: true,
+    }
+  }
+};
 </script>
 
 <style scoped>
