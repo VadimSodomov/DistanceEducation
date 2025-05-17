@@ -49,6 +49,7 @@
           <li v-for="lesson in courseData.lessons" :key="lesson.id">
             <Lesson :lesson="lesson"
                     :is-author="isAuthor"
+                    @update="fetchCourseData"
                     @delete="deleteLesson"/>
           </li>
         </ul>

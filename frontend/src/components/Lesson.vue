@@ -30,33 +30,45 @@
               <label for="deadline">Дедлайн</label>
             </FloatLabel>
             <FileUpload
+                choose-label="Выбрать"
+                cancel-label="Отмена"
                 :customUpload="true"
-                @upload="onUpload($event)"
                 :multiple="true"
                 :showUploadButton="false"
-                choose-label="Выбрать"
-                cancel-label="Отмена">
+                @select="onFileSelect"
+                @remove="onFileRemove"
+                @clear="clearAllFiles"
+                @change="handleFileChange"
+            >
               <template #empty>
                 <span>Загрузите материалы. Перетащите файлы сюда.</span>
               </template>
             </FileUpload>
           </div>
         </div>
-        <div v-else>
-          <p class="m-0">
-            {{ lesson.description }}
-          </p>
-          <div v-if="isExpanded && lesson.filePaths?.length" class="file-list">
-            <p>Материалы:</p>
-            <ul>
-              <li v-for="(path, index) in lesson.filePaths" :key="index">
-                <Button :label="extractFileName(path)"
-                        @click.stop="openFile(path)"
-                        link/>
-              </li>
-            </ul>
+        <div v-else style="display: flex; justify-content: space-between;">
+          <div>
+            <p class="m-0">
+              {{ lesson.description }}
+            </p>
+            <p v-if="isAuthor && isExpanded">Статистика тут когда-нибудь будет</p>
           </div>
-          <p v-if="isAuthor && isExpanded">Статистика тут когда-нибудь будет</p>
+          <div v-if="isExpanded && lesson.lessonFiles?.length" class="file-list">
+            <span>Материалы:</span>
+            <div v-for="(path, index) in lesson.lessonFiles" :key="index"
+                 style="display: flex; justify-content: space-between;">
+              <Button
+                  :label="path.name"
+                  @click.stop="openFile(path)"
+                  severity="info"
+                  variant="text"/>
+              <Button
+                  icon="pi pi-trash"
+                  severity="danger" variant="text"
+                  @click.stop="openFile(path)"
+              />
+            </div>
+          </div>
         </div>
       </template>
       <template #footer v-if="isAuthor && isExpanded">
@@ -91,6 +103,8 @@ import {loader} from "@/utils/loader.js";
 import {getErrorMessage} from "@/utils/ErrorHelper.js";
 import FloatLabel from "primevue/floatlabel";
 import {useToast} from "primevue";
+import apiClient from "@/api/index.js";
+import {saveAs} from "@primevue/core";
 
 const toast = useToast()
 
@@ -104,6 +118,8 @@ const props = defineProps({
   },
   isAuthor: Boolean,
 });
+
+const fileList = ref([]);
 
 const emit = defineEmits(['delete']);
 
@@ -129,6 +145,7 @@ const formatDeadline = (isoString) => {
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
+    timeZone: 'UTC'
   }).format(date);
 };
 
@@ -151,7 +168,8 @@ const startEdit = () => {
     description: props.lesson.description,
     hwDeadline: props.lesson.hwDeadline
         ? new Date(props.lesson.hwDeadline)
-        : null
+        : null,
+    filePaths: props.lesson.lessonFiles
   };
 };
 
@@ -159,12 +177,64 @@ const cancelEdit = () => {
   isEditing.value = false;
 };
 
+const formatDateToDDMMYYYYHHMMSS = (date) => {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  const seconds = '00';
+  return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+};
+
+const onFileSelect = (event) => {
+  fileList.value = [...fileList.value, ...event.files];
+};
+
+const onFileRemove = (event) => {
+  fileList.value = fileList.value.filter(f => f.name !== event.file.name);
+};
+
+const clearAllFiles = () => {
+  fileList.value = [];
+};
+
+const handleFileChange = (data) => {
+  if (data.fileList.length > 1) {
+    fileList.value = [data.fileList[data.fileList.length - 1]];
+  }
+};
+
 const saveEdit = async () => {
   try {
     loader.show();
-    // запрос на обновление урока сюда
+    await apiClient.post(`/api/lesson/edit/${props.lesson.id}`, {
+      name: editData.value.name,
+      description: editData.value.description,
+      hwDeadline: editData.value.hwDeadline ? formatDateToDDMMYYYYHHMMSS(editData.value.hwDeadline) : null,
+    });
 
-    // await dataLesson.id запрос на отправку материалов fileList
+    if (fileList.value.length > 0) {
+      const formData = new FormData();
+
+      fileList.value.forEach((file, index) => {
+        formData.append(`files[${index}]`, file);
+      });
+      try {
+        await apiClient.post(`/api/upload/lesson/${props.lesson.id}`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+      } catch (error) {
+        toast.add({
+          severity: 'warn',
+          summary: 'Ошибка при загрузке файлов',
+          life: 4000
+        });
+      }
+    }
 
     isEditing.value = false;
     emit('update');
@@ -186,29 +256,35 @@ const getFileUrl = (path) => {
   return path.startsWith('http') ? path : `${import.meta.env.VITE_API_BASE_URL || ''}${path}`;
 };
 
-const extractFileName = (path) => {
-  return path.split('/').pop();
-};
-
-const openFile = (path) => {
-  const url = getFileUrl(path);
-  window.open(url, '_blank');
-};
-
-// TODO этого запроса быть не должно. сделать как в попапе создания урока
-const onUpload = async (event) => {
-  const filePaths = new FormData()
-
-  for (const file of event.files) {
-    filePaths.append('files[]', file)
-  }
-
+const openFile = async (file) => {
   try {
-    // запрос будет тут
-  } catch (err) {
-    console.error('Ошибка загрузки:', err)
+    const response = await apiClient.get(`/api/download/lesson-file/${file.id}`, {
+      responseType: 'arraybuffer'
+    });
+
+    const blob = new Blob([response.data], {type: 'application/pdf'});
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = file.name || 'document.pdf';
+    document.body.appendChild(a);
+    a.click();
+
+    setTimeout(() => {
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    }, 100);
+
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: 'Ошибка при сохранении файла',
+      detail: `${getErrorMessage(error)}`,
+      life: 4000
+    });
   }
-}
+};
+
 </script>
 
 <style scoped>
@@ -216,10 +292,12 @@ const onUpload = async (event) => {
   width: 500px;
   max-width: 100%;
 }
+
 .card-wrapper {
   cursor: pointer;
   transition: box-shadow 0.2s;
 }
+
 .card-wrapper:hover {
   box-shadow: 0 0 9px rgba(0, 0, 0, 0.1);
 }
