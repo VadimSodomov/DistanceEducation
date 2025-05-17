@@ -273,8 +273,8 @@ const chartResultsData = computed(() => {
     datasets: [
       {
         data: [passed_count_80, passed_count_60, passed_count_40, passed_count_20, passed_count_0],
-        backgroundColor: ['#14b8a6', '#2086de', '#f4e436', '#d78500', '#f44336'],
-        hoverBackgroundColor: ['#339a89', '#1a67a9', '#b9ad29', '#ad7110', '#e57373']
+        backgroundColor: ['#14b8a6', '#cbe116', '#f4e436', '#d78500', '#f44336'],
+        hoverBackgroundColor: ['#339a89', '#d0de5d', '#b9ad29', '#ad7110', '#e57373']
       }
     ]
   };
