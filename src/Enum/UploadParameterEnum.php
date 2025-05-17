@@ -7,4 +7,5 @@ namespace App\Enum;
 enum UploadParameterEnum: string
 {
     case LESSON = 'upload_directory_lesson';
+    case LESSON_USER = 'upload_directory_lesson_user';
 }
