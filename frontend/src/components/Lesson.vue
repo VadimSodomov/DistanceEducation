@@ -56,33 +56,35 @@
               </li>
             </ul>
           </div>
-          <p><strong>Статистика:</strong></p>
-          <div v-if="isAuthor && isExpanded" class="charts">
-            <div class="flex flex-column align-items-center">
-              <Knob
-                  v-model="avgData.avg"
-                  disabled
-                  :valueColor="avgData.color"
-                  :size="250"
-              />
+          <div v-if="isAuthor && isExpanded">
+            <p><strong>Статистика:</strong></p>
+            <div class="charts">
+              <div class="flex flex-column align-items-center">
+                <Knob
+                    v-model="avgData.avg"
+                    disabled
+                    :valueColor="avgData.color"
+                    :size="250"
+                />
 
-              <div class="text-center">
-                <div class="text-sm text-color-secondary mt-1">
-                  <strong>Средний балл</strong> на основе <strong>{{ statsData.total_users || 0 }}</strong> участников
+                <div class="text-center">
+                  <div class="text-sm text-color-secondary mt-1">
+                    <strong>Средний балл</strong> на основе <strong>{{ statsData.total_users || 0 }}</strong> участников
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <Chart type="pie"
-                   :data="chartCountData"
-                   :options="chartOptions"
-                   style="height: 300px; width: 300px"
-            />
-            <Chart type="pie"
-                   :data="chartResultsData"
-                   :options="chartOptions"
-                   style="height: 300px; width: 300px"
-            />
+              <Chart type="pie"
+                     :data="chartCountData"
+                     :options="chartOptions"
+                     style="height: 300px; width: 300px"
+              />
+              <Chart type="pie"
+                     :data="chartResultsData"
+                     :options="chartOptions"
+                     style="height: 300px; width: 300px"
+              />
+            </div>
           </div>
         </div>
       </template>
