@@ -54,17 +54,14 @@
             </FileUpload>
           </div>
         </div>
-        <div v-else style="display: flex; justify-content: space-between;">
-          <div>
-            <p class="m-0">
-              {{ lesson.description }}
-            </p>
-            <p v-if="isAuthor && isExpanded">Статистика тут когда-нибудь будет</p>
-          </div>
-          <div v-if="isExpanded && lesson.lessonFiles?.length" class="file-list">
-            <span>Материалы:</span>
+        <div v-else>
+          <p class="m-0">
+            {{ lesson.description }}
+          </p>
+          <div v-if="isExpanded && lesson.lessonFiles?.length" style="margin-top: 10px">
+            <span><strong>Материалы:</strong></span>
             <div v-for="(path, index) in lesson.lessonFiles" :key="index"
-                 style="display: flex; justify-content: space-between;">
+                 style="display: flex">
               <Button
                   :label="path.name"
                   @click.stop="openFile(path)"
@@ -77,6 +74,7 @@
               />
             </div>
           </div>
+
           <div v-if="isAuthor && isExpanded">
             <p><strong>Статистика:</strong></p>
             <div class="charts">
@@ -106,6 +104,11 @@
                      style="height: 300px; width: 300px"
               />
             </div>
+          </div>
+          <div v-else-if="isExpanded">
+            <Button
+                label="Прикрепить ответ"
+            />
           </div>
         </div>
       </template>
