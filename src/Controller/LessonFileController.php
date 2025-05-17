@@ -21,7 +21,7 @@ class LessonFileController extends AbstractController
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-        private readonly SluggerInterface $slugger,
+        private readonly SluggerInterface       $slugger,
     )
     {
     }
@@ -112,5 +112,30 @@ class LessonFileController extends AbstractController
         );
 
         return $response;
+    }
+
+    #[Route(
+        '/api/delete/lesson-file/{id}',
+        name: 'delete_lesson_file',
+        requirements: ['id' => '\d+'],
+        methods: ['POST'],
+        format: 'json'
+    )]
+    public function delete(LessonFile $lessonFile): JsonResponse
+    {
+        $uploadDirectory = $this->getParameter(UploadParameterEnum::LESSON->value);
+
+        $filePath = $uploadDirectory . '/' . $lessonFile->getNameOnServer();
+
+        if (!file_exists($filePath)) {
+            throw $this->createNotFoundException('Файл не найден');
+        }
+
+        unlink($filePath);
+
+        $this->entityManager->remove($lessonFile);
+        $this->entityManager->flush();
+
+        return $this->json(['message' => 'Файл успешно удален!'], Response::HTTP_OK);
     }
 }
