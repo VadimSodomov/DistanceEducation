@@ -7,7 +7,7 @@
       <template #center>
         <div class="flex items-center gap-2">
           <Button
-              label="Мои курсы"
+              label="Мои созданные курсы"
               text
               plain
               @click="goToPage('MyCoursesPage')"
@@ -24,6 +24,11 @@
       <template #end>
         <div class="flex items-center gap-2">
           <Button
+              :icon="darkMode ? 'pi pi-sun' : 'pi pi-moon'"
+              severity="secondary"
+              @click="switchTheme"
+          />
+          <Button
               :label="userName"
               severity="secondary"
               @click="toggle"
@@ -38,7 +43,7 @@
       </template>
     </Toolbar>
   </div>
-  <router-view />
+  <router-view/>
 </template>
 
 <script setup>
@@ -50,6 +55,7 @@ import {loader} from "@/utils/loader.js";
 import router from "@/router/index.js";
 import {Menu} from "primevue";
 import store from "@/store/index.js";
+import axios from "axios";
 
 const route = useRoute();
 const darkMode = ref(false);
@@ -63,10 +69,6 @@ const userName = computed(() => {
 });
 
 const items = computed(() => [
-  {
-    label: 'Сменить тему',
-    command: () => switchTheme()
-  },
   {
     label: 'Выйти',
     command: () => {

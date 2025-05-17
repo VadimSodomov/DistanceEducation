@@ -6,7 +6,7 @@
       :modal="true"
       :style="{ width: '450px' }"
   >
-    <div class="content" v-if="!isCreated">
+    <div class="content">
       <InputText
           v-model="lessonData.name"
           placeholder="Название"
@@ -28,14 +28,14 @@
           style="resize: none; height: 150px"
       />
       <FileUpload
+          choose-label="Выбрать"
+          cancel-label="Отмена"
           :customUpload="true"
+          :multiple="true"
+          :showUploadButton="false"
           @select="onFileSelect"
           @remove="onFileRemove"
           @clear="clearAllFiles"
-          :multiple="true"
-          :showUploadButton="false"
-          choose-label="Выбрать"
-          cancel-label="Отмена"
       >
         <template #empty>
           <span>Загрузите материалы. Перетащите файлы сюда.</span>
@@ -43,7 +43,7 @@
       </FileUpload>
     </div>
 
-    <template #footer v-if="!isCreated" class="footer">
+    <template #footer class="footer">
       <Button
           label="Отмена"
           severity="secondary"
@@ -75,7 +75,6 @@ const toast = useToast()
 
 const emits = defineEmits(['update:visible', 'updateData']);
 
-const isCreated = ref(false)
 const loadingCreate = ref(false)
 const fileList = ref([]);
 
@@ -105,9 +104,15 @@ const isBtnDisabled = computed(() => {
 })
 
 const onFileSelect = (event) => {
-  fileList.value = [...fileList.value, ...event.files];
+  const newFiles = event.files.filter(newFile =>
+    !fileList.value.some(existingFile =>
+      existingFile.name === newFile.name &&
+      existingFile.size === newFile.size &&
+      existingFile.lastModified === newFile.lastModified
+    )
+  );
+  fileList.value = [...fileList.value, ...newFiles];
 };
-
 const onFileRemove = (event) => {
   fileList.value = fileList.value.filter(f => f.name !== event.file.name);
 };
@@ -118,7 +123,7 @@ const clearAllFiles = () => {
 
 const closeDialog = () => {
   emits('update:visible', false);
-  isCreated.value = false
+  fileList.value = []
   lessonData.value = {
     name: '',
     description: '',
@@ -149,11 +154,29 @@ const saveLesson = async () => {
       courseId: props.courseId
     });
 
-    // await dataLesson.id запрос на отправку материалов fileList
+    if (fileList.value.length > 0) {
+      const formData = new FormData();
+
+      fileList.value.forEach((file, index) => {
+        formData.append(`files[${index}]`, file);
+      });
+      try {
+        await apiClient.post(`/api/upload/lesson/${dataLesson.data.id}`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+      } catch (error) {
+        toast.add({
+          severity: 'warn',
+          summary: 'Ошибка при загрузке файлов',
+          life: 4000
+        });
+      }
+    }
 
     emits('updateData');
     closeDialog()
-    isCreated.value = true;
     toast.add({
       severity: 'success',
       summary: 'Урок успешно создан',
@@ -168,6 +191,7 @@ const saveLesson = async () => {
     });
   } finally {
     loadingCreate.value = false
+    fileList.value = []
   }
 }
 </script>

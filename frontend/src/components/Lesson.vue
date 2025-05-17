@@ -38,12 +38,16 @@
               <label for="deadline">Дедлайн</label>
             </FloatLabel>
             <FileUpload
+                choose-label="Выбрать"
+                cancel-label="Отмена"
                 :customUpload="true"
-                @upload="onUpload($event)"
                 :multiple="true"
                 :showUploadButton="false"
-                choose-label="Выбрать"
-                cancel-label="Отмена">
+                @select="onFileSelect"
+                @remove="onFileRemove"
+                @clear="clearAllFiles"
+                @change="handleFileChange"
+            >
               <template #empty>
                 <span>Загрузите материалы. Перетащите файлы сюда.</span>
               </template>
@@ -54,16 +58,23 @@
           <p class="m-0">
             {{ lesson.description }}
           </p>
-          <div v-if="isExpanded && lesson.filePaths?.length" class="file-list">
-            <p>Материалы:</p>
-            <ul>
-              <li v-for="(path, index) in lesson.filePaths" :key="index">
-                <Button :label="extractFileName(path)"
-                        @click.stop="openFile(path)"
-                        link/>
-              </li>
-            </ul>
+          <div v-if="isExpanded && lesson.lessonFiles?.length" style="margin-top: 10px">
+            <span><strong>Материалы:</strong></span>
+            <div v-for="(path, index) in lesson.lessonFiles" :key="index"
+                 style="display: flex">
+              <Button
+                  :label="path.name"
+                  @click.stop="openFile(path)"
+                  severity="info"
+                  variant="text"/>
+              <Button
+                  icon="pi pi-trash"
+                  severity="danger" variant="text"
+                  @click.stop="deleteFile(path.id)"
+              />
+            </div>
           </div>
+
           <div v-if="isAuthor && isExpanded">
             <p><strong>Статистика:</strong></p>
             <div class="charts">
@@ -93,6 +104,11 @@
                      style="height: 300px; width: 300px"
               />
             </div>
+          </div>
+          <div v-else-if="isExpanded">
+            <Button
+                label="Прикрепить ответ"
+            />
           </div>
         </div>
       </template>
@@ -148,6 +164,8 @@ const props = defineProps({
 
 const statsData = ref({});
 
+const fileList = ref([]);
+
 const emit = defineEmits(['delete']);
 
 const handleDelete = () => {
@@ -172,6 +190,7 @@ const formatDeadline = (isoString) => {
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
+    timeZone: 'UTC'
   }).format(date);
 };
 
@@ -194,7 +213,8 @@ const startEdit = () => {
     description: props.lesson.description,
     hwDeadline: props.lesson.hwDeadline
         ? new Date(props.lesson.hwDeadline)
-        : null
+        : null,
+    filePaths: props.lesson.lessonFiles
   };
 };
 
@@ -202,12 +222,64 @@ const cancelEdit = () => {
   isEditing.value = false;
 };
 
+const formatDateToDDMMYYYYHHMMSS = (date) => {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  const seconds = '00';
+  return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+};
+
+const onFileSelect = (event) => {
+  fileList.value = [...fileList.value, ...event.files];
+};
+
+const onFileRemove = (event) => {
+  fileList.value = fileList.value.filter(f => f.name !== event.file.name);
+};
+
+const clearAllFiles = () => {
+  fileList.value = [];
+};
+
+const handleFileChange = (data) => {
+  if (data.fileList.length > 1) {
+    fileList.value = [data.fileList[data.fileList.length - 1]];
+  }
+};
+
 const saveEdit = async () => {
   try {
     loader.show();
-    // запрос на обновление урока сюда
+    await apiClient.post(`/api/lesson/edit/${props.lesson.id}`, {
+      name: editData.value.name,
+      description: editData.value.description,
+      hwDeadline: editData.value.hwDeadline ? formatDateToDDMMYYYYHHMMSS(editData.value.hwDeadline) : null,
+    });
 
-    // await dataLesson.id запрос на отправку материалов fileList
+    if (fileList.value.length > 0) {
+      const formData = new FormData();
+
+      fileList.value.forEach((file, index) => {
+        formData.append(`files[${index}]`, file);
+      });
+      try {
+        await apiClient.post(`/api/upload/lesson/${props.lesson.id}`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+      } catch (error) {
+        toast.add({
+          severity: 'warn',
+          summary: 'Ошибка при загрузке файлов',
+          life: 4000
+        });
+      }
+    }
 
     isEditing.value = false;
     emit('update');
@@ -229,29 +301,48 @@ const getFileUrl = (path) => {
   return path.startsWith('http') ? path : `${import.meta.env.VITE_API_BASE_URL || ''}${path}`;
 };
 
-const extractFileName = (path) => {
-  return path.split('/').pop();
-};
-
-const openFile = (path) => {
-  const url = getFileUrl(path);
-  window.open(url, '_blank');
-};
-
-// TODO этого запроса быть не должно. сделать как в попапе создания урока
-const onUpload = async (event) => {
-  const filePaths = new FormData()
-
-  for (const file of event.files) {
-    filePaths.append('files[]', file)
-  }
-
+const deleteFile = async (fileId) => {
   try {
-    // запрос будет тут
-  } catch (err) {
-    console.error('Ошибка загрузки:', err)
+    await apiClient.post(`/api/delete/lesson-file/${fileId}`);
+    emit('update');
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: 'Ошибка при удалении файла',
+      detail: `${getErrorMessage(error)}`,
+      life: 4000
+    });
   }
 }
+
+const openFile = async (file) => {
+  try {
+    const response = await apiClient.get(`/api/download/lesson-file/${file.id}`, {
+      responseType: 'arraybuffer'
+    });
+
+    const blob = new Blob([response.data], {type: 'application/pdf'});
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = file.name || 'document.pdf';
+    document.body.appendChild(a);
+    a.click();
+
+    setTimeout(() => {
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    }, 100);
+
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: 'Ошибка при сохранении файла',
+      detail: `${getErrorMessage(error)}`,
+      life: 4000
+    });
+  }
+};
 
 // Статистика
 const chartCountData = computed(() => {
@@ -336,6 +427,7 @@ onMounted(async () => {
     await fetchStatistic();
   }
 })
+
 </script>
 
 <style scoped>

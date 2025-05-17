@@ -51,6 +51,7 @@
             <Lesson :lesson="lesson"
                     :is-author="isAuthor"
                     :is-completed="isCompleted(lesson.id)"
+                    @update="fetchCourseData"
                     @delete="deleteLesson"/>
           </li>
         </ul>
