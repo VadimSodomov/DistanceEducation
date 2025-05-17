@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Enum\UploadParameterEnum;
 use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -95,6 +96,16 @@ class LessonController extends AbstractController
     {
         if ($lesson->getCourse()->getAuthor() !== $this->getCurrentUser()) {
             throw $this->createAccessDeniedException();
+        }
+
+        $dir = $this->getParameter(UploadParameterEnum::LESSON->value);
+
+        foreach ($lesson->getLessonFiles() as $lessonFile) {
+            $filePath = $dir . '/' . $lessonFile->getNameOnServer();
+
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
         }
 
         $this->entityManager->remove($lesson);

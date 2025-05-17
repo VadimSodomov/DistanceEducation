@@ -46,7 +46,6 @@ class Lesson
     /**
      * @var Collection<int, LessonFile>
      */
-    #[Ignore]
     #[ORM\OneToMany(targetEntity: LessonFile::class, mappedBy: 'lesson', cascade: ['persist', 'remove'])]
     private Collection $lessonFiles;
 

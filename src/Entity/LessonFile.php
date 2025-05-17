@@ -17,12 +17,17 @@ class LessonFile
     #[ORM\Column(type: Types::BIGINT)]
     private ?int $id = null;
 
+    #[Ignore]
     #[ORM\ManyToOne(inversedBy: 'lessonFiles')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Lesson $lesson = null;
 
     #[ORM\Column(type: Types::TEXT)]
     private ?string $name = null;
+
+    #[Ignore]
+    #[ORM\Column(type: Types::TEXT)]
+    private ?string $nameOnServer = null;
 
     public function getId(): ?int
     {
@@ -50,6 +55,18 @@ class LessonFile
     public function setName(string $name): static
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function getNameOnServer(): ?string
+    {
+        return $this->nameOnServer;
+    }
+
+    public function setNameOnServer(string $nameOnServer): static
+    {
+        $this->nameOnServer = $nameOnServer;
 
         return $this;
     }
