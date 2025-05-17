@@ -219,7 +219,7 @@ const deleteLesson = async (lessonId) => {
 }
 
 const fetchLessonsDone = async () => {
-  const lessonsDoneResponse = await api.get(`/api/lesson-user`); // нужен апи для получения всех сдач ученика по курсу (массив какой-то)
+  const lessonsDoneResponse = await api.get(`/api/lesson-user/my-passed/${courseId}`);
   lessonsDone.value = lessonsDoneResponse.data;
 }
 
