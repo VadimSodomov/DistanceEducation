@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\DTO\LessonUserDTO;
 use App\DTO\ScoreDTO;
+use App\Entity\Course;
 use App\Entity\LessonUser;
 use App\Repository\CourseUserRepository;
 use App\Repository\LessonRepository;
@@ -30,6 +31,20 @@ class LessonUserController extends AbstractController
         private readonly LessonUserRepository   $lessonUserRepository,
     )
     {
+    }
+
+    #[Route(
+        '/api/lesson-user/my-passed/{id}',
+        name: 'api_lesson_user_my_passed',
+        requirements: ['id' => '\d+'],
+        methods: 'GET',
+        format: 'json'
+    )]
+    public function getMyPassed(Course $course): JsonResponse
+    {
+        $lessonsUser = $this->lessonUserRepository->findByCourseUser($course, $this->getCurrentUser());
+
+        return $this->json($lessonsUser, Response::HTTP_OK);
     }
 
     #[Route(
