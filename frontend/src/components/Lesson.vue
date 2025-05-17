@@ -56,12 +56,33 @@
               </li>
             </ul>
           </div>
-          <div v-if="isAuthor && isExpanded" style="width: 30%">
-            <p><strong>Статистика</strong></p>
+          <p><strong>Статистика:</strong></p>
+          <div v-if="isAuthor && isExpanded" class="charts">
+            <div class="flex flex-column align-items-center">
+              <Knob
+                  v-model="avgData.avg"
+                  disabled
+                  :valueColor="avgData.color"
+                  :size="250"
+              />
+
+              <div class="text-center">
+                <div class="text-sm text-color-secondary mt-1">
+                  <strong>Средний балл</strong> на основе <strong>{{ statsData.total_users || 0 }}</strong> участников
+                </div>
+              </div>
+            </div>
+
             <Chart type="pie"
-                   :data="chartData"
+                   :data="chartCountData"
                    :options="chartOptions"
-                   class="w-full md:w-[30rem]" />
+                   style="height: 300px; width: 300px"
+            />
+            <Chart type="pie"
+                   :data="chartResultsData"
+                   :options="chartOptions"
+                   style="height: 300px; width: 300px"
+            />
           </div>
         </div>
       </template>
@@ -85,19 +106,21 @@
 </template>
 
 <script setup>
-import {defineEmits, defineProps} from 'vue';
+import {computed, defineEmits, defineProps, onMounted} from 'vue';
 import Card from 'primevue/card';
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 import Textarea from 'primevue/textarea';
 import DatePicker from 'primevue/datepicker';
 import FileUpload from 'primevue/fileupload';
+import {Knob} from "primevue";
 import {ref} from 'vue';
 import {loader} from "@/utils/loader.js";
 import {getErrorMessage} from "@/utils/ErrorHelper.js";
 import FloatLabel from "primevue/floatlabel";
 import {useToast} from "primevue";
 import Chart from 'primevue/chart';
+import apiClient from "@/api/index.js";
 
 const toast = useToast()
 
@@ -111,6 +134,8 @@ const props = defineProps({
   },
   isAuthor: Boolean,
 });
+
+const statsData = ref({});
 
 const emit = defineEmits(['delete']);
 
@@ -217,18 +242,54 @@ const onUpload = async (event) => {
   }
 }
 
-// СТАТИСТИКА
+// Статистика
+const chartCountData = computed(() => {
+  const passed = statsData.value.passed_count ? parseInt(statsData.value.passed_count) : 0;
+  const notPassed = statsData.value.not_passed_count ? parseInt(statsData.value.not_passed_count) : 0;
 
-const chartData = {
-  labels: ['Сдано', 'Не сдано'],
-  datasets: [
-    {
-      data: [70, 30], // сюда потом вставить процент сданных и несданных
-      backgroundColor: ['#14b8a6', '#f44336'],
-      hoverBackgroundColor: ['#339a89', '#e57373']
-    }
-  ]
-};
+  return {
+    labels: ['Сдано', 'Не сдано'],
+    datasets: [
+      {
+        data: [passed, notPassed],
+        backgroundColor: ['#14b8a6', '#f44336'],
+        hoverBackgroundColor: ['#339a89', '#e57373']
+      }
+    ]
+  };
+});
+
+const chartResultsData = computed(() => {
+  const passed_count_80 = statsData.value.passed_count_80 ? parseInt(statsData.value.passed_count_80) : 0;
+  const passed_count_60 = statsData.value.passed_count_60 ? parseInt(statsData.value.passed_count_60) : 0;
+  const passed_count_40 = statsData.value.passed_count_40 ? parseInt(statsData.value.passed_count_40) : 0;
+  const passed_count_20 = statsData.value.passed_count_20 ? parseInt(statsData.value.passed_count_20) : 0;
+  const passed_count_0 = statsData.value.passed_count_0 ? parseInt(statsData.value.passed_count_0) : 0;
+
+  return {
+    labels: ['больше 80', 'от 60 до 80', 'от 40 до 60', 'от 20 до 40', 'менее 20'],
+    datasets: [
+      {
+        data: [passed_count_80, passed_count_60, passed_count_40, passed_count_20, passed_count_0],
+        backgroundColor: ['#14b8a6', '#2086de', '#f4e436', '#d78500', '#f44336'],
+        hoverBackgroundColor: ['#339a89', '#1a67a9', '#b9ad29', '#ad7110', '#e57373']
+      }
+    ]
+  };
+});
+
+const avgData = computed(() => {
+  const avg = statsData.value.avg_passed !== null ? parseFloat(statsData.value.avg_passed) : 0;
+  let color;
+  if (avg >= 80) color = '#14b8a6';
+  else if (avg >= 50) color = '#f59e0b';
+  else color = '#ef4444';
+
+  return {
+    avg: avg,
+    color: color,
+  }
+});
 
 const chartOptions = {
   responsive: true,
@@ -241,6 +302,29 @@ const chartOptions = {
     }
   }
 };
+
+const fetchStatistic = async () => {
+  loader.show()
+  try {
+    const response = await apiClient.get(`/api/lesson/${props.lesson.id}/short-statistics`);
+    statsData.value = response.data;
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: 'Ошибка при получении статистики',
+      detail: `${getErrorMessage(error)}`,
+      life: 4000
+    });
+  } finally {
+    loader.hide()
+  }
+}
+
+onMounted(async () => {
+  if (props.isAuthor) {
+    await fetchStatistic();
+  }
+})
 </script>
 
 <style scoped>
@@ -248,15 +332,25 @@ const chartOptions = {
   width: 500px;
   max-width: 100%;
 }
+
 .card-wrapper {
   cursor: pointer;
   transition: box-shadow 0.2s;
 }
+
 .card-wrapper:hover {
   box-shadow: 0 0 9px rgba(0, 0, 0, 0.1);
 }
 
 :deep(.p-card.expanded-mode) {
   border: 1px solid var(--p-button-primary-background);
+}
+
+.charts {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 50px;
+  margin: 30px;
 }
 </style>
