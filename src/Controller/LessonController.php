@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Enum\UploadParameterEnum;
+use App\Repository\LessonRepository;
 use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,6 +25,7 @@ class LessonController extends AbstractController
     public function __construct(
         readonly private CourseRepository       $courseRepository,
         readonly private LessonUserRepository   $lessonUserRepository,
+        readonly private LessonRepository       $lessonRepository,
         readonly private EntityManagerInterface $entityManager,
         readonly private UserRepository         $userRepository,
     )
@@ -65,7 +67,7 @@ class LessonController extends AbstractController
         format: 'json'
     )]
     public function edit(
-        Lesson $lesson,
+        Lesson                         $lesson,
         #[MapRequestPayload] LessonDTO $lessonDTO
     ): JsonResponse
     {
@@ -123,11 +125,33 @@ class LessonController extends AbstractController
     )]
     public function statisticByLesson(Lesson $lesson): JsonResponse
     {
+        if ($lesson->getCourse()->getAuthor() !== $this->getCurrentUser()) {
+            throw $this->createAccessDeniedException();
+        }
+
         $statistic = $this->lessonUserRepository->findBy(
             ['lesson' => $lesson->getId()],
             ['score' => 'DESC']
         );
 
         return $this->json(['statistic' => $statistic], Response::HTTP_OK);
+    }
+
+    #[Route(
+        '/api/lesson/{id}/short-statistics',
+        name: 'api_lesson_short_statistic',
+        requirements: ['id' => '\d+'],
+        methods: ['GET'],
+        format: 'json'
+    )]
+    public function shortStatisticByLesson(Lesson $lesson): JsonResponse
+    {
+        if ($lesson->getCourse()->getAuthor() !== $this->getCurrentUser()) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $statistics = $this->lessonRepository->getStatistics($lesson->getId());
+
+        return $this->json($statistics, Response::HTTP_OK);
     }
 }

@@ -64,7 +64,6 @@ class LessonUser
         return $this;
     }
 
-    #[Ignore]
     public function getLesson(): ?Lesson
     {
         return $this->lesson;
