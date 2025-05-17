@@ -20,6 +20,10 @@ class LessonUserFile
     #[ORM\Column(type: Types::TEXT)]
     private ?string $name = null;
 
+    #[Ignore]
+    #[ORM\Column(type: Types::TEXT)]
+    private ?string $nameOnServer = null;
+
     #[ORM\ManyToOne(inversedBy: 'lessonUserFiles')]
     #[ORM\JoinColumn(nullable: false)]
     private ?LessonUser $lessonUser = null;
@@ -50,6 +54,18 @@ class LessonUserFile
     public function setLessonUser(?LessonUser $lessonUser): static
     {
         $this->lessonUser = $lessonUser;
+
+        return $this;
+    }
+
+    public function getNameOnServer(): ?string
+    {
+        return $this->nameOnServer;
+    }
+
+    public function setNameOnServer(string $nameOnServer): static
+    {
+        $this->nameOnServer = $nameOnServer;
 
         return $this;
     }
