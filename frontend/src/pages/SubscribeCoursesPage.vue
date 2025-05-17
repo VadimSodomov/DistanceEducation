@@ -28,7 +28,7 @@
           <template #content>
             <p class="m-0">
               <b>Автор:</b>
-              {{ course.user.name }}
+              {{ course.course.author.name }}
             </p>
             <p class="m-0">
               <b>Описание:</b>

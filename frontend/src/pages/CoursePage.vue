@@ -18,6 +18,7 @@
         <Button
             v-if="!isAuthor && isConnected"
             label="Покинуть курс"
+            severity="danger"
             @click="leaveCourse"
         />
         <Button
@@ -27,7 +28,7 @@
         />
       </div>
     </div>
-
+    <ProgressBar v-if="!isAuthor" :value="courseProgress"/>
     <div>
       <div class="course-description">
         <h2>Описание курса</h2>
@@ -49,6 +50,7 @@
           <li v-for="lesson in courseData.lessons" :key="lesson.id">
             <Lesson :lesson="lesson"
                     :is-author="isAuthor"
+                    :is-completed="isCompleted(lesson.id)"
                     @delete="deleteLesson"/>
           </li>
         </ul>
@@ -67,11 +69,13 @@ import {getErrorMessage} from '@/utils/ErrorHelper';
 import {Button} from "primevue";
 import apiClient from "@/api/index.js";
 import {useRoute, useRouter} from "vue-router";
-import { onMounted, ref} from "vue";
+import {computed, onMounted, ref} from "vue";
 import {loader} from '@/utils/loader';
 import {Toast, useToast} from "primevue";
 import CreateLessonPopup from "@/components/CreateLessonPopup.vue";
 import Lesson from "@/components/Lesson.vue";
+import ProgressBar from 'primevue/progressbar';
+import api from "@/api/index.js";
 
 const toast = useToast()
 const route = useRoute()
@@ -89,6 +93,15 @@ const courseData = ref({
     name: ""
   }
 })
+
+const lessonsDone = ref([]);
+
+const courseProgress = computed(() => {
+  const lessonsCount = courseData.value.lessons.length || 0;
+  const lessonsDoneCount = lessonsDone.value.length;
+
+  return lessonsCount > 0 ? Math.round((lessonsDoneCount / lessonsCount) * 100) : 0;
+});
 
 const isAuthor = ref(false)
 const isConnected = ref(false)
@@ -206,9 +219,20 @@ const deleteLesson = async (lessonId) => {
   }
 }
 
+const fetchLessonsDone = async () => {
+  const lessonsDoneResponse = await api.get(`/api/lesson-user/my-passed/${courseId}`);
+  lessonsDone.value = lessonsDoneResponse.data;
+}
+
+const isCompleted = ((lessonId) => {
+  return lessonsDone.value.some(item => item.lesson.id === lessonId);
+})
+
+
 onMounted(async () => {
   if (courseId) {
     await fetchCourseData();
+    await fetchLessonsDone();
   } else {
     alert('ID курса не указан');
   }

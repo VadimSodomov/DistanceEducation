@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use App\Entity\Course;
 use App\Entity\LessonUser;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -18,28 +20,19 @@ class LessonUserRepository extends ServiceEntityRepository
         parent::__construct($registry, LessonUser::class);
     }
 
-//    /**
-//     * @return LessonUser[] Returns an array of LessonUser objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('l')
-//            ->andWhere('l.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('l.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
-
-//    public function findOneBySomeField($value): ?LessonUser
-//    {
-//        return $this->createQueryBuilder('l')
-//            ->andWhere('l.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+    /**
+     * @return LessonUser[] Returns an array of LessonUser objects
+     */
+    public function findByCourseUser(Course $course, User $user): array
+    {
+        return $this->createQueryBuilder('lu')
+            ->innerJoin('lu.lesson', 'l')
+            ->andWhere('l.course = :course')
+            ->andWhere('lu.user = :user')
+            ->setParameter('course', $course)
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
 }
