@@ -1,7 +1,15 @@
 <template>
   <div @click="toggleExpand" class="card-wrapper">
     <Card :class="{ 'expanded-mode': isExpanded }">
-      <template #title>{{ isEditing ? editData.name : lesson.name }}</template>
+      <template #title>
+        <div style="display: flex; justify-content: space-between;">
+          {{ isEditing ? editData.name : lesson.name }}
+          <div v-if="!isAuthor && isCompleted">
+            <Tag icon="pi pi-check" severity="success" rounded style="width: 30px; height: 30px;"/>
+          </div>
+        </div>
+
+      </template>
       <template #subtitle>
         {{
           isEditing
@@ -115,7 +123,7 @@ import InputText from 'primevue/inputtext';
 import Textarea from 'primevue/textarea';
 import DatePicker from 'primevue/datepicker';
 import FileUpload from 'primevue/fileupload';
-import {Knob} from "primevue";
+import {Knob, Tag} from "primevue";
 import {ref} from 'vue';
 import {loader} from "@/utils/loader.js";
 import {getErrorMessage} from "@/utils/ErrorHelper.js";
@@ -135,6 +143,7 @@ const props = defineProps({
     filePaths: Array
   },
   isAuthor: Boolean,
+  isCompleted: Boolean,
 });
 
 const statsData = ref({});

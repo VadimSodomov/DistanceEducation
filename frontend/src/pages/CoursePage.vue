@@ -50,6 +50,7 @@
           <li v-for="lesson in courseData.lessons" :key="lesson.id">
             <Lesson :lesson="lesson"
                     :is-author="isAuthor"
+                    :is-completed="isCompleted(lesson.id)"
                     @delete="deleteLesson"/>
           </li>
         </ul>
@@ -222,6 +223,11 @@ const fetchLessonsDone = async () => {
   const lessonsDoneResponse = await api.get(`/api/lesson-user/my-passed/${courseId}`);
   lessonsDone.value = lessonsDoneResponse.data;
 }
+
+const isCompleted = ((lessonId) => {
+  return lessonsDone.value.some(item => item.lesson.id === lessonId);
+})
+
 
 onMounted(async () => {
   if (courseId) {
