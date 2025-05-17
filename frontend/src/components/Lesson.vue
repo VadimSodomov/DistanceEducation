@@ -65,7 +65,7 @@
               <Button
                   icon="pi pi-trash"
                   severity="danger" variant="text"
-                  @click.stop="openFile(path)"
+                  @click.stop="deleteFile(path.id)"
               />
             </div>
           </div>
@@ -104,7 +104,6 @@ import {getErrorMessage} from "@/utils/ErrorHelper.js";
 import FloatLabel from "primevue/floatlabel";
 import {useToast} from "primevue";
 import apiClient from "@/api/index.js";
-import {saveAs} from "@primevue/core";
 
 const toast = useToast()
 
@@ -255,6 +254,20 @@ const saveEdit = async () => {
 const getFileUrl = (path) => {
   return path.startsWith('http') ? path : `${import.meta.env.VITE_API_BASE_URL || ''}${path}`;
 };
+
+const deleteFile = async (fileId) => {
+  try {
+    await apiClient.post(`/api/delete/lesson-file/${fileId}`);
+    emit('update');
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: 'Ошибка при удалении файла',
+      detail: `${getErrorMessage(error)}`,
+      life: 4000
+    });
+  }
+}
 
 const openFile = async (file) => {
   try {
