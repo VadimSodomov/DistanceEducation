@@ -48,11 +48,19 @@
         </div>
         <ul class="lessons-list">
           <li v-for="lesson in courseData.lessons" :key="lesson.id">
-            <Lesson :lesson="lesson"
-                    :is-author="isAuthor"
-                    :is-completed="isCompleted(lesson.id)"
-                    @update="fetchCourseData"
-                    @delete="deleteLesson"/>
+            <Lesson
+                v-if="isAuthor"
+                :lesson="lesson"
+                :is-completed="isCompleted(lesson.id)"
+                @update="fetchCourseData"
+                @delete="deleteLesson"
+            />
+            <LessonForStudent
+                v-else
+                :lesson="lesson"
+                :is-completed="isCompleted(lesson.id)"
+                @update="fetchCourseData"
+            />
           </li>
         </ul>
       </div>
@@ -77,6 +85,7 @@ import CreateLessonPopup from "@/components/CreateLessonPopup.vue";
 import Lesson from "@/components/Lesson.vue";
 import ProgressBar from 'primevue/progressbar';
 import api from "@/api/index.js";
+import LessonForStudent from "@/components/LessonForStudent.vue";
 
 const toast = useToast()
 const route = useRoute()

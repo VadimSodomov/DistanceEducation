@@ -2,13 +2,7 @@
   <div @click="toggleExpand" class="card-wrapper">
     <Card :class="{ 'expanded-mode': isExpanded }">
       <template #title>
-        <div style="display: flex; justify-content: space-between;">
-          {{ isEditing ? editData.name : lesson.name }}
-          <div v-if="!isAuthor && isCompleted">
-            <Tag icon="pi pi-check" severity="success" rounded style="width: 30px; height: 30px;"/>
-          </div>
-        </div>
-
+        <div style="display: flex; justify-content: space-between;">{{ lesson.name }}</div>
       </template>
       <template #subtitle>
         {{
@@ -46,7 +40,6 @@
                 @select="onFileSelect"
                 @remove="onFileRemove"
                 @clear="clearAllFiles"
-                @change="handleFileChange"
             >
               <template #empty>
                 <span>Загрузите материалы. Перетащите файлы сюда.</span>
@@ -75,7 +68,7 @@
             </div>
           </div>
 
-          <div v-if="isAuthor && isExpanded">
+          <div v-if="isExpanded">
             <p><strong>Статистика:</strong></p>
             <div class="charts">
               <div class="flex flex-column align-items-center">
@@ -105,14 +98,9 @@
               />
             </div>
           </div>
-          <div v-else-if="isExpanded">
-            <Button
-                label="Прикрепить ответ"
-            />
-          </div>
         </div>
       </template>
-      <template #footer v-if="isAuthor && isExpanded">
+      <template #footer v-if="isExpanded">
         <div class="flex gap-4 mt-1">
           <Button v-if="!isEditing"
                   label="Редактировать"
@@ -132,7 +120,7 @@
 </template>
 
 <script setup>
-import {computed, defineEmits, defineProps, onMounted} from 'vue';
+import {computed, defineEmits, defineProps, onMounted, watch} from 'vue';
 import Card from 'primevue/card';
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
@@ -158,7 +146,6 @@ const props = defineProps({
     hwDeadline: String,
     filePaths: Array
   },
-  isAuthor: Boolean,
   isCompleted: Boolean,
 });
 
@@ -166,7 +153,8 @@ const statsData = ref({});
 
 const fileList = ref([]);
 
-const emit = defineEmits(['delete']);
+
+const emit = defineEmits(['delete', 'update']);
 
 const handleDelete = () => {
   emit('delete', props.lesson.id);
@@ -234,7 +222,14 @@ const formatDateToDDMMYYYYHHMMSS = (date) => {
 };
 
 const onFileSelect = (event) => {
-  fileList.value = [...fileList.value, ...event.files];
+  const newFiles = event.files.filter(newFile =>
+      !fileList.value.some(existingFile =>
+          existingFile.name === newFile.name &&
+          existingFile.size === newFile.size &&
+          existingFile.lastModified === newFile.lastModified
+      )
+  );
+  fileList.value = [...fileList.value, ...newFiles];
 };
 
 const onFileRemove = (event) => {
@@ -243,12 +238,6 @@ const onFileRemove = (event) => {
 
 const clearAllFiles = () => {
   fileList.value = [];
-};
-
-const handleFileChange = (data) => {
-  if (data.fileList.length > 1) {
-    fileList.value = [data.fileList[data.fileList.length - 1]];
-  }
 };
 
 const saveEdit = async () => {
@@ -282,6 +271,7 @@ const saveEdit = async () => {
     }
 
     isEditing.value = false;
+    fileList.value = [];
     emit('update');
   } catch (e) {
     toast.add({
@@ -295,7 +285,7 @@ const saveEdit = async () => {
   }
 };
 
-// ДЛЯ ФАЙЛОВ (доделать как будет бэк)
+// ДЛЯ ФАЙЛОВ
 
 const getFileUrl = (path) => {
   return path.startsWith('http') ? path : `${import.meta.env.VITE_API_BASE_URL || ''}${path}`;
@@ -423,10 +413,9 @@ const fetchStatistic = async () => {
 }
 
 onMounted(async () => {
-  if (props.isAuthor) {
-    await fetchStatistic();
-  }
-})
+  await fetchStatistic();
+  fileList.value = [];
+});
 
 </script>
 
