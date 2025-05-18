@@ -102,6 +102,24 @@ class LessonUserController extends AbstractController
     }
 
     #[Route(
+        '/api/lesson-user/get/{id}',
+        name: 'api_lesson_user_get_one',
+        requirements: ['id' => '\d+'],
+        methods: 'GET',
+        format: 'json'
+    )]
+    public function getOne(LessonUser $lessonUser): JsonResponse
+    {
+        if (
+            $lessonUser->getUser() !== $this->getCurrentUser()
+            || $lessonUser->getLesson()->getCourse()->getAuthor() !== $this->getCurrentUser()) {
+            throw $this->createAccessDeniedException();
+        }
+
+        return $this->json($lessonUser, Response::HTTP_OK);
+    }
+
+    #[Route(
         '/api/lesson-user/edit/{id}',
         name: 'api_lesson_user_edit',
         requirements: ['id' => '\d+'],
