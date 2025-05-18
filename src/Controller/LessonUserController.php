@@ -113,7 +113,7 @@ class LessonUserController extends AbstractController
     {
         if (
             $lesson->getCourse()->getAuthor() !== $this->getCurrentUser()
-            || !$this->courseUserRepository->isParticipant(
+            && !$this->courseUserRepository->isParticipant(
                 $lesson->getCourse()->getId(),
                 $this->getCurrentUser()->getId()
             )
