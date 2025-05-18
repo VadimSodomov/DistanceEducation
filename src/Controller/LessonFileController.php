@@ -123,16 +123,6 @@ class LessonFileController extends AbstractController
     )]
     public function delete(LessonFile $lessonFile): JsonResponse
     {
-        $uploadDirectory = $this->getParameter(UploadParameterEnum::LESSON->value);
-
-        $filePath = $uploadDirectory . '/' . $lessonFile->getNameOnServer();
-
-        if (!file_exists($filePath)) {
-            throw $this->createNotFoundException('Файл не найден');
-        }
-
-        unlink($filePath);
-
         $this->entityManager->remove($lessonFile);
         $this->entityManager->flush();
 
