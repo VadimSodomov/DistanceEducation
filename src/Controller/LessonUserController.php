@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\DTO\LessonUserDTO;
 use App\DTO\ScoreDTO;
 use App\Entity\Course;
+use App\Entity\Lesson;
 use App\Entity\LessonUser;
 use App\Repository\CourseUserRepository;
 use App\Repository\LessonRepository;
@@ -108,12 +109,22 @@ class LessonUserController extends AbstractController
         methods: 'GET',
         format: 'json'
     )]
-    public function getOne(LessonUser $lessonUser): JsonResponse
+    public function getOne(Lesson $lesson): JsonResponse
     {
         if (
-            $lessonUser->getUser() !== $this->getCurrentUser()
-            || $lessonUser->getLesson()->getCourse()->getAuthor() !== $this->getCurrentUser()) {
+            $lesson->getCourse()->getAuthor() !== $this->getCurrentUser()
+            || !$this->courseUserRepository->isParticipant(
+                $lesson->getCourse()->getId(),
+                $this->getCurrentUser()->getId()
+            )
+        ) {
             throw $this->createAccessDeniedException();
+        }
+
+        $lessonUser = $this->lessonUserRepository->findOneBy(['lesson' => $lesson, 'user' => $this->getCurrentUser()]);
+
+        if ($lessonUser === null) {
+            throw $this->createNotFoundException();
         }
 
         return $this->json($lessonUser, Response::HTTP_OK);
