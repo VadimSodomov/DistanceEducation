@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\DTO\LessonUserDTO;
 use App\DTO\ScoreDTO;
 use App\Entity\Course;
+use App\Entity\Lesson;
 use App\Entity\LessonUser;
 use App\Repository\CourseUserRepository;
 use App\Repository\LessonRepository;
@@ -45,6 +46,24 @@ class LessonUserController extends AbstractController
         $lessonsUser = $this->lessonUserRepository->findByCourseUser($course, $this->getCurrentUser());
 
         return $this->json($lessonsUser, Response::HTTP_OK);
+    }
+
+    #[Route(
+        '/api/lesson-user/all-passed/{id}',
+        name: 'api_lesson_user_all_passed',
+        requirements: ['id' => '\d+'],
+        methods: 'GET',
+        format: 'json'
+    )]
+    public function getAllPassed(Lesson $lesson): JsonResponse
+    {
+        if ($lesson->getCourse()->getAuthor() !== $this->getCurrentUser()) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $lessonsUser = $this->lessonUserRepository->findBy(['lesson' => $lesson], ['id' => 'ASC']);
+
+        return $this->json($lessonsUser, Response::HTTP_OK, context: ['ignored_attributes' => ['lesson']]);
     }
 
     #[Route(
