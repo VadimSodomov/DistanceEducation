@@ -5,6 +5,7 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     upload_directory_lesson: '%kernel.project_dir%/public/uploads/lesson'
+    upload_directory_lesson_user: '%kernel.project_dir%/public/uploads/lesson-user'
 
 services:
     # default configuration for services in *this* file

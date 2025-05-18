@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\DTO\LessonUserDTO;
 use App\DTO\ScoreDTO;
 use App\Entity\Course;
+use App\Entity\Lesson;
 use App\Entity\LessonUser;
 use App\Repository\CourseUserRepository;
 use App\Repository\LessonRepository;
@@ -92,7 +93,41 @@ class LessonUserController extends AbstractController
         $this->entityManager->persist($lessonUser);
         $this->entityManager->flush();
 
-        return $this->json(['message' => 'Ваш ответ прикреплен!'], Response::HTTP_CREATED);
+        return $this->json(
+            [
+                'message' => 'Ваш ответ прикреплен!',
+                'id' => $lessonUser->getId(),
+            ],
+            Response::HTTP_CREATED
+        );
+    }
+
+    #[Route(
+        '/api/lesson-user/get/{id}',
+        name: 'api_lesson_user_get_one',
+        requirements: ['id' => '\d+'],
+        methods: 'GET',
+        format: 'json'
+    )]
+    public function getOne(Lesson $lesson): JsonResponse
+    {
+        if (
+            $lesson->getCourse()->getAuthor() !== $this->getCurrentUser()
+            && !$this->courseUserRepository->isParticipant(
+                $lesson->getCourse()->getId(),
+                $this->getCurrentUser()->getId()
+            )
+        ) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $lessonUser = $this->lessonUserRepository->findOneBy(['lesson' => $lesson, 'user' => $this->getCurrentUser()]);
+
+        if ($lessonUser === null) {
+            throw $this->createNotFoundException();
+        }
+
+        return $this->json($lessonUser, Response::HTTP_OK);
     }
 
     #[Route(

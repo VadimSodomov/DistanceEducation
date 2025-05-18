@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Ignore;
 
 #[ORM\Entity(repositoryClass: LessonUserFileRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class LessonUserFile
 {
     #[ORM\Id]
@@ -19,6 +20,10 @@ class LessonUserFile
 
     #[ORM\Column(type: Types::TEXT)]
     private ?string $name = null;
+
+    #[Ignore]
+    #[ORM\Column(type: Types::TEXT)]
+    private ?string $nameOnServer = null;
 
     #[ORM\ManyToOne(inversedBy: 'lessonUserFiles')]
     #[ORM\JoinColumn(nullable: false)]
@@ -52,5 +57,29 @@ class LessonUserFile
         $this->lessonUser = $lessonUser;
 
         return $this;
+    }
+
+    public function getNameOnServer(): ?string
+    {
+        return $this->nameOnServer;
+    }
+
+    public function setNameOnServer(string $nameOnServer): static
+    {
+        $this->nameOnServer = $nameOnServer;
+
+        return $this;
+    }
+
+    #[ORM\PreRemove]
+    public function removeFile(): void
+    {
+        $dir = dirname(__DIR__, 2) . '/public/uploads/lesson-user';
+
+        $filePath = $dir . '/' . $this->nameOnServer;
+
+        if (file_exists($filePath)) {
+            unlink($filePath);
+        }
     }
 }
