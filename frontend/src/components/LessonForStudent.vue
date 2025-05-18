@@ -23,7 +23,7 @@
                  style="display: flex">
               <Button
                   :label="path.name"
-                  @click.stop="openFile(path)"
+                  @click.stop="openFile(path, 'teacher')"
                   severity="info"
                   variant="text"/>
             </div>
@@ -63,7 +63,7 @@
                      style="display: flex">
                   <Button
                       :label="path.name"
-                      @click.stop="openFile(path)"
+                      @click.stop="openFile(path, 'user')"
                       severity="info"
                       variant="text"/>
                 </div>
@@ -223,11 +223,18 @@ const saveAnswer = async () => {
   }
 }
 
-const openFile = async (file) => {
+const openFile = async (file, type) => {
   try {
-    const response = await apiClient.get(`/api/download/lesson-user-file/${file.id}`, {
-      responseType: 'arraybuffer'
-    });
+    let response;
+    if (type === 'user') {
+      response = await apiClient.get(`/api/download/lesson-user-file/${file.id}`, {
+        responseType: 'arraybuffer'
+      });
+    } else {
+      response = await apiClient.get(`/api/download/lesson-file/${file.id}`, {
+        responseType: 'arraybuffer'
+      });
+    }
 
     const blob = new Blob([response.data], {type: 'application/pdf'});
     const url = window.URL.createObjectURL(blob);
