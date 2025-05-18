@@ -61,9 +61,16 @@ class LessonUserController extends AbstractController
             throw $this->createAccessDeniedException();
         }
 
-        $lessonsUser = $this->lessonUserRepository->findBy(['lesson' => $lesson], ['id' => 'ASC']);
+        $lessonsUserChecked = $this->lessonUserRepository->findByLessonChecked($lesson);
+        $lessonsUserNotChecked = $this->lessonUserRepository->findByLessonNotChecked($lesson);
 
-        return $this->json($lessonsUser, Response::HTTP_OK, context: ['ignored_attributes' => ['lesson']]);
+        return $this->json(
+            [
+                'checked' => $lessonsUserChecked,
+                'notChecked' => $lessonsUserNotChecked,
+            ],
+            Response::HTTP_OK, context: ['ignored_attributes' => ['lesson']]
+        );
     }
 
     #[Route(

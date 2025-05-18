@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\Entity\Course;
+use App\Entity\Lesson;
 use App\Entity\LessonUser;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -32,7 +33,28 @@ class LessonUserRepository extends ServiceEntityRepository
             ->setParameter('course', $course)
             ->setParameter('user', $user)
             ->getQuery()
-            ->getResult()
-        ;
+            ->getResult();
+    }
+
+    public function findByLessonNotChecked(Lesson $lesson): array
+    {
+        return $this->createQueryBuilder('lu')
+            ->andWhere('lu.lesson = :lesson')
+            ->andWhere('lu.score IS NULL')
+            ->addOrderBy('lu.id', 'ASC')
+            ->setParameter('lesson', $lesson)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findByLessonChecked(Lesson $lesson): array
+    {
+        return $this->createQueryBuilder('lu')
+            ->andWhere('lu.lesson = :lesson')
+            ->andWhere('lu.score IS NOT NULL')
+            ->addOrderBy('lu.id', 'ASC')
+            ->setParameter('lesson', $lesson)
+            ->getQuery()
+            ->getResult();
     }
 }
