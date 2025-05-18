@@ -1,0 +1,296 @@
+<template>
+  <div @click="toggleExpand" class="card-wrapper">
+    <Card :class="{ 'expanded-mode': isExpanded }">
+      <template #title>
+        <div style="display: flex; justify-content: space-between;">
+          {{ lesson.name }}
+          <div v-if="isCompleted">
+            <Tag icon="pi pi-check" severity="success" rounded style="width: 30px; height: 30px;"/>
+          </div>
+        </div>
+      </template>
+      <template #subtitle>
+        {{ (lesson.hwDeadline ? 'Дедлайн: ' + formatDeadline(lesson.hwDeadline) : 'Без дедлайна') }}
+      </template>
+      <template #content>
+        <div>
+          <p class="m-0">
+            {{ lesson.description }}
+          </p>
+          <div v-if="isExpanded && lesson.lessonFiles?.length" style="margin-top: 10px">
+            <span><strong>Материалы:</strong></span>
+            <div v-for="(path, index) in lesson.lessonFiles" :key="index"
+                 style="display: flex">
+              <Button
+                  :label="path.name"
+                  @click.stop="openFile(path)"
+                  severity="info"
+                  variant="text"/>
+            </div>
+          </div>
+
+          <div v-if="isExpanded" style="margin-top: 10px">
+            <div v-if="isEmptyAnswer" style="display: flex; gap: 20px;">
+                <Textarea v-model="answerDescription"
+                          placeholder="Комментарий"
+                          style="resize: none; height: 150px; width: 300px"
+                          @click.stop=""
+                />
+              <FileUpload
+                  :key="'uploader-' + isExpanded"
+                  choose-label="Выбрать"
+                  cancel-label="Отмена"
+                  :customUpload="true"
+                  :multiple="true"
+                  :showUploadButton="false"
+                  @select="onFileSelect"
+                  @remove="onFileRemove"
+                  @clear="clearAllFiles"
+                  @click.stop=""
+              >
+                <template #empty>
+                  <span>Загрузите материалы. Перетащите файлы сюда.</span>
+                </template>
+              </FileUpload>
+            </div>
+            <div v-else style="display: flex; gap: 20px; flex-direction: column">
+              <span><strong>То, что ниже, будет еще изменяться</strong></span>
+              <span>Оценка: {{ myAnswer.score || "Не проверено" }}</span>
+              <span>Дата ответа: {{ myAnswer.uploadedAt }}</span>
+              <div v-if="myAnswer.lessonUserFiles?.length" style="margin-top: 10px">
+                <span><strong>Прикрепленные файлы:</strong></span>
+                <div v-for="(path, index) in myAnswer.lessonUserFiles" :key="index"
+                     style="display: flex">
+                  <Button
+                      :label="path.name"
+                      @click.stop="openFile(path)"
+                      severity="info"
+                      variant="text"/>
+                </div>
+              </div>
+              <span>Комментарий: {{ myAnswer.comment }}</span>
+            </div>
+          </div>
+        </div>
+      </template>
+      <template #footer v-if="isExpanded">
+        <div class="flex gap-4 mt-1">
+          <Button label="Отправить ответ"
+                  @click.stop="saveAnswer"
+                  :disabled="btnDisabled"
+          />
+        </div>
+      </template>
+    </Card>
+  </div>
+</template>
+
+<script setup>
+import {computed, defineEmits, defineProps, onMounted, watch} from 'vue';
+import Card from 'primevue/card';
+import Button from 'primevue/button';
+import Textarea from 'primevue/textarea';
+import FileUpload from 'primevue/fileupload';
+import {Tag} from "primevue";
+import {ref} from 'vue';
+import {getErrorMessage} from "@/utils/ErrorHelper.js";
+import {useToast} from "primevue";
+import apiClient from "@/api/index.js";
+import {loader} from "@/utils/loader.js";
+
+const toast = useToast()
+
+const props = defineProps({
+  lesson: {
+    id: Number,
+    name: String,
+    description: String,
+    hwDeadline: String,
+    filePaths: Array
+  },
+  isCompleted: Boolean,
+});
+
+const statsData = ref({});
+
+const fileList = ref([]);
+
+const answerDescription = ref("")
+
+const myAnswer = ref({});
+
+const emit = defineEmits(['delete']);
+
+const isExpanded = ref(false);
+
+const btnDisabled = computed(() => {
+  return !(answerDescription.value)
+})
+
+const isEmptyAnswer = computed(() => {
+  return Object.keys(myAnswer.value).length === 0;
+});
+
+const toggleExpand = () => {
+  if (isExpanded) {
+    fileList.value = []
+  }
+  isExpanded.value = !isExpanded.value;
+};
+
+const formatDeadline = (isoString) => {
+  if (!isoString) return '';
+
+  const date = new Date(isoString);
+  return new Intl.DateTimeFormat('ru-RU', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'UTC'
+  }).format(date);
+};
+
+const onFileSelect = (event) => {
+  const newFiles = event.files.filter(newFile =>
+      !fileList.value.some(existingFile =>
+          existingFile.name === newFile.name &&
+          existingFile.size === newFile.size &&
+          existingFile.lastModified === newFile.lastModified
+      )
+  );
+  fileList.value = [...fileList.value, ...newFiles];
+};
+
+const onFileRemove = (event) => {
+  if (!fileList.value) return; // Защита от null
+  fileList.value = fileList.value.filter(f => f.name !== event.file.name);
+};
+
+const clearAllFiles = () => {
+  if (fileList.value) fileList.value = []; // Очистка с проверкой
+};
+
+const saveAnswer = async () => {
+  loader.show();
+  try {
+    const response = await apiClient.post(`/api/lesson-user/create`, {
+      lessonId: props.lesson.id,
+      comment: answerDescription.value,
+    });
+
+    if (fileList.value.length > 0) {
+      const formData = new FormData();
+
+      fileList.value.forEach((file, index) => {
+        formData.append(`files[${index}]`, file);
+      });
+      try {
+        await apiClient.post(`/api/upload/lesson-user/${response.data.id}`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+      } catch (error) {
+        toast.add({
+          severity: 'warn',
+          summary: 'Ошибка при загрузке файлов',
+          life: 4000
+        });
+      }
+    }
+
+    toast.add({
+      severity: 'success',
+      summary: 'Ваш ответ успешно отправлен!',
+      life: 4000
+    });
+
+    clearAllFiles();
+    isExpanded.value = false;
+    answerDescription.value = "";
+    emit('update');
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: 'Ошибка при отправке ответа',
+      detail: `${getErrorMessage(error)}`,
+      life: 4000
+    });
+  } finally {
+    loader.hide();
+  }
+}
+
+const openFile = async (file) => {
+  try {
+    const response = await apiClient.get(`/api/download/lesson-user-file/${file.id}`, {
+      responseType: 'arraybuffer'
+    });
+
+    const blob = new Blob([response.data], {type: 'application/pdf'});
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = file.name || 'document.pdf';
+    document.body.appendChild(a);
+    a.click();
+
+    setTimeout(() => {
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    }, 100);
+
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: 'Ошибка при сохранении файла',
+      detail: `${getErrorMessage(error)}`,
+      life: 4000
+    });
+  }
+};
+
+const getAnswer = async () => {
+  try {
+    const response = await apiClient.get(`/api/lesson-user/get/${props.lesson.id}`);
+    myAnswer.value = response.data;
+    console.log(myAnswer.value)
+  } catch (error) {
+    if (error.response) {
+      if (error.response.status !== 404) {
+        toast.add({
+          severity: 'error',
+          summary: 'Ошибка при загрузке ответа',
+          detail: `${getErrorMessage(error)}`,
+          life: 4000
+        });
+      }
+    }
+  }
+};
+
+
+onMounted(async () => {
+  await getAnswer();
+  fileList.value = [];
+});
+
+</script>
+
+<style scoped>
+
+.card-wrapper {
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+}
+
+.card-wrapper:hover {
+  box-shadow: 0 0 9px rgba(0, 0, 0, 0.1);
+}
+
+:deep(.p-card.expanded-mode) {
+  border: 1px solid var(--p-button-primary-background);
+}
+</style>
