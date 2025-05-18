@@ -92,7 +92,13 @@ class LessonUserController extends AbstractController
         $this->entityManager->persist($lessonUser);
         $this->entityManager->flush();
 
-        return $this->json(['message' => 'Ваш ответ прикреплен!'], Response::HTTP_CREATED);
+        return $this->json(
+            [
+                'message' => 'Ваш ответ прикреплен!',
+                'id' => $lessonUser->getId(),
+            ],
+            Response::HTTP_CREATED
+        );
     }
 
     #[Route(
