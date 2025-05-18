@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Ignore;
 
 #[ORM\Entity(repositoryClass: LessonFileRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class LessonFile
 {
     #[ORM\Id]
@@ -69,5 +70,17 @@ class LessonFile
         $this->nameOnServer = $nameOnServer;
 
         return $this;
+    }
+
+    #[ORM\PreRemove]
+    public function removeFile(): void
+    {
+        $dir = dirname(__DIR__, 2) . '/public/uploads/lesson';
+
+        $filePath = $dir . '/' . $this->nameOnServer;
+
+        if (file_exists($filePath)) {
+            unlink($filePath);
+        }
     }
 }
