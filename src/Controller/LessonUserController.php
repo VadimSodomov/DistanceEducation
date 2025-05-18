@@ -49,6 +49,31 @@ class LessonUserController extends AbstractController
     }
 
     #[Route(
+        '/api/lesson-user/all-passed/{id}',
+        name: 'api_lesson_user_all_passed',
+        requirements: ['id' => '\d+'],
+        methods: 'GET',
+        format: 'json'
+    )]
+    public function getAllPassed(Lesson $lesson): JsonResponse
+    {
+        if ($lesson->getCourse()->getAuthor() !== $this->getCurrentUser()) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $lessonsUserChecked = $this->lessonUserRepository->findByLessonChecked($lesson);
+        $lessonsUserNotChecked = $this->lessonUserRepository->findByLessonNotChecked($lesson);
+
+        return $this->json(
+            [
+                'checked' => $lessonsUserChecked,
+                'notChecked' => $lessonsUserNotChecked,
+            ],
+            Response::HTTP_OK, context: ['ignored_attributes' => ['lesson']]
+        );
+    }
+
+    #[Route(
         '/api/lesson-user/create',
         name: 'api_lesson_user_create',
         methods: ['POST'],
