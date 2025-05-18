@@ -119,7 +119,7 @@ const answerDescription = ref("")
 
 const myAnswer = ref({});
 
-const emit = defineEmits(['delete']);
+const emit = defineEmits(['update']);
 
 const isExpanded = ref(false);
 
