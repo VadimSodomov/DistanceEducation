@@ -100,16 +100,6 @@ class LessonController extends AbstractController
             throw $this->createAccessDeniedException();
         }
 
-        $dir = $this->getParameter(UploadParameterEnum::LESSON->value);
-
-        foreach ($lesson->getLessonFiles() as $lessonFile) {
-            $filePath = $dir . '/' . $lessonFile->getNameOnServer();
-
-            if (file_exists($filePath)) {
-                unlink($filePath);
-            }
-        }
-
         $this->entityManager->remove($lesson);
         $this->entityManager->flush();
 
