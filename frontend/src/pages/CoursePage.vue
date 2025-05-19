@@ -28,7 +28,9 @@
         />
       </div>
     </div>
-    <ProgressBar v-if="!isAuthor" :value="courseProgress"/>
+    <ProgressBar v-if="!isAuthor"
+                 :value="courseProgress"
+                 style="min-height: 20px"/>
     <div>
       <div class="course-description">
         <h2>Описание курса</h2>
@@ -196,6 +198,7 @@ const fetchCourseData = async () => {
     courseData.value = response.data.data.course;
     isAuthor.value = response.data.data.isAuthor;
     isConnected.value = response.data.data.isConnected;
+    await fetchLessonsDone();
   } catch (error) {
     toast.add({
       severity: 'error',
