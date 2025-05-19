@@ -3,6 +3,7 @@ import Auth from '@/pages/Auth.vue';
 import MyCoursesPage from "@/pages/MyCoursesPage.vue";
 import SubscribeCoursesPage from "@/pages/SubscribeCoursesPage.vue";
 import CoursePage from "@/pages/CoursePage.vue";
+import CheckHomework from "@/pages/CheckHomework.vue";
 import store from "@/store/index.js";
 
 const routes = [
@@ -31,6 +32,12 @@ const routes = [
         path: '/course',
         name: 'CoursePage',
         component: CoursePage,
+        meta: {requiresAuth: true}
+    },
+    {
+        path: '/check-homework',
+        name: 'CheckHomework',
+        component: CheckHomework,
         meta: {requiresAuth: true}
     },
     {

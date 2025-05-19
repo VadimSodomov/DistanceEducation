@@ -53,6 +53,7 @@
             <Lesson
                 v-if="isAuthor"
                 :lesson="lesson"
+                :course-id="courseId"
                 :is-completed="isCompleted(lesson.id)"
                 @update="fetchCourseData"
                 @delete="deleteLesson"

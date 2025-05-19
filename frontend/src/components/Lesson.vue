@@ -102,6 +102,8 @@
       </template>
       <template #footer v-if="isExpanded">
         <div class="flex gap-4 mt-1">
+          <Button label="Проверить работы"
+                  @click.stop="startChecking"/>
           <Button v-if="!isEditing"
                   label="Редактировать"
                   @click.stop="startEdit"/>
@@ -135,6 +137,7 @@ import FloatLabel from "primevue/floatlabel";
 import {useToast} from "primevue";
 import Chart from 'primevue/chart';
 import apiClient from "@/api/index.js";
+import router from "@/router/index.js";
 
 const toast = useToast()
 
@@ -147,12 +150,12 @@ const props = defineProps({
     filePaths: Array
   },
   isCompleted: Boolean,
+  courseId: Number,
 });
 
 const statsData = ref({});
 
 const fileList = ref([]);
-
 
 const emit = defineEmits(['delete', 'update']);
 
@@ -286,7 +289,6 @@ const saveEdit = async () => {
 };
 
 // ДЛЯ ФАЙЛОВ
-
 const getFileUrl = (path) => {
   return path.startsWith('http') ? path : `${import.meta.env.VITE_API_BASE_URL || ''}${path}`;
 };
@@ -410,6 +412,16 @@ const fetchStatistic = async () => {
   } finally {
     loader.hide()
   }
+}
+
+const startChecking = async () => {
+  await router.push({
+    name: 'CheckHomework',
+    query: {
+      courseId: props.courseId,
+      lessonId: props.lesson.id
+    },
+  });
 }
 
 onMounted(async () => {
