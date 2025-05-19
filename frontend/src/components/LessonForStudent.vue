@@ -54,9 +54,8 @@
               </FileUpload>
             </div>
             <div style="display: flex; gap: 20px; flex-direction: column">
-              <span v-if="!isEditing"><strong>То, что ниже, будет еще изменяться</strong></span>
-              <span v-if="!isEditing">Оценка: {{ myAnswer.score || "Не проверено" }}</span>
-              <span v-if="!isEditing">Дата ответа: {{ formatDeadline(myAnswer.uploadedAt) }}</span>
+              <span v-if="!isEditing && !isEmptyAnswer"><strong>Оценка:</strong> {{ myAnswer.score || "Не проверено" }}</span>
+              <span v-if="!isEditing && !isEmptyAnswer"><strong>Дата ответа:</strong> {{ formatDeadline(myAnswer.uploadedAt) }}</span>
               <div v-if="myAnswer.lessonUserFiles?.length" style="margin-top: 10px">
                 <span><strong>Прикрепленные файлы:</strong></span>
                 <div v-for="(path, index) in myAnswer.lessonUserFiles" :key="index"
@@ -74,7 +73,7 @@
                   />
                 </div>
               </div>
-              <span v-if="!isEditing">Комментарий: {{ myAnswer.comment }}</span>
+              <span v-if="!isEditing && !isEmptyAnswer"><strong>Комментарий:</strong> {{ myAnswer.comment }}</span>
             </div>
           </div>
         </div>
@@ -91,11 +90,6 @@
                   @click.stop="editAnswer"
                   :disabled="btnDisabled"
           />
-          <Button label="Отменить редактирование"
-                  v-if="isEditing"
-                  severity="danger"
-                  @click.stop="isEditing = false"
-          />
           <div v-else class="flex gap-4 mt-1">
             <Button label="Редактировать ответ"
                     @click.stop="isEditing = true"
@@ -105,6 +99,11 @@
                     @click.stop="deleteAnswer"
             />
           </div>
+          <Button label="Отменить редактирование"
+                  v-if="isEditing && !isEmptyAnswer"
+                  severity="danger"
+                  @click.stop="isEditing = false"
+          />
         </div>
       </template>
     </Card>
@@ -159,6 +158,12 @@ const isEmptyAnswer = computed(() => {
 
 const isEditing = ref(false);
 
+watch(isEditing, (newVal) => {
+  if (newVal) {
+    answerDescription.value = myAnswer.value.comment || '';
+  }
+});
+
 const toggleExpand = () => {
   if (isExpanded) {
     fileList.value = []
@@ -201,6 +206,7 @@ const clearAllFiles = () => {
 };
 
 const deleteFile = async (fileId) => {
+  loader.show();
   try {
     await apiClient.post(`/api/delete/lesson-user-file/${fileId}`);
     await getAnswer();
@@ -212,6 +218,8 @@ const deleteFile = async (fileId) => {
       detail: `${getErrorMessage(error)}`,
       life: 4000
     });
+  } finally {
+    loader.hide();
   }
 }
 
