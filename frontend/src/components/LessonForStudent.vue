@@ -53,10 +53,10 @@
                 </template>
               </FileUpload>
             </div>
-            <div v-else style="display: flex; gap: 20px; flex-direction: column">
-              <span><strong>То, что ниже, будет еще изменяться</strong></span>
-              <span>Оценка: {{ myAnswer.score || "Не проверено" }}</span>
-              <span>Дата ответа: {{ formatDeadline(myAnswer.uploadedAt) }}</span>
+            <div style="display: flex; gap: 20px; flex-direction: column">
+              <span v-if="!isEditing"><strong>То, что ниже, будет еще изменяться</strong></span>
+              <span v-if="!isEditing">Оценка: {{ myAnswer.score || "Не проверено" }}</span>
+              <span v-if="!isEditing">Дата ответа: {{ formatDeadline(myAnswer.uploadedAt) }}</span>
               <div v-if="myAnswer.lessonUserFiles?.length" style="margin-top: 10px">
                 <span><strong>Прикрепленные файлы:</strong></span>
                 <div v-for="(path, index) in myAnswer.lessonUserFiles" :key="index"
@@ -66,9 +66,15 @@
                       @click.stop="openFile(path, 'user')"
                       severity="info"
                       variant="text"/>
+                  <Button
+                      icon="pi pi-trash"
+                      severity="danger" variant="text"
+                      @click.stop="deleteFile(path.id)"
+                      v-if="isEditing"
+                  />
                 </div>
               </div>
-              <span>Комментарий: {{ myAnswer.comment }}</span>
+              <span v-if="!isEditing">Комментарий: {{ myAnswer.comment }}</span>
             </div>
           </div>
         </div>
@@ -84,6 +90,11 @@
                   v-else-if="isEditing"
                   @click.stop="editAnswer"
                   :disabled="btnDisabled"
+          />
+          <Button label="Отменить редактирование"
+                  v-if="isEditing"
+                  severity="danger"
+                  @click.stop="isEditing = false"
           />
           <div v-else class="flex gap-4 mt-1">
             <Button label="Редактировать ответ"
@@ -188,6 +199,21 @@ const onFileRemove = (event) => {
 const clearAllFiles = () => {
   if (fileList.value) fileList.value = []; // Очистка с проверкой
 };
+
+const deleteFile = async (fileId) => {
+  try {
+    await apiClient.post(`/api/delete/lesson-user-file/${fileId}`);
+    await getAnswer();
+    emit('update');
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: 'Ошибка при удалении файла',
+      detail: `${getErrorMessage(error)}`,
+      life: 4000
+    });
+  }
+}
 
 const saveAnswer = async () => {
   loader.show();
