@@ -287,7 +287,6 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-
 .card-wrapper {
   cursor: pointer;
   transition: box-shadow 0.2s;
