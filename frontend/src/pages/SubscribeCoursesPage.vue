@@ -26,14 +26,17 @@
         <Card class="card" @click="">
           <template #title>{{ course.course.name }}</template>
           <template #content>
-            <p class="m-0">
-              <b>Автор:</b>
-              {{ course.course.author.name }}
-            </p>
-            <p class="m-0">
-              <b>Описание:</b>
-              {{ course.course.description }}
-            </p>
+            <div style="height: 160px; overflow-y: auto; ">
+              <p class="m-0">
+                <b>Автор:</b>
+                {{ course.course.author.name }}
+              </p>
+              <p class="m-0">
+                <b>Описание:</b>
+                {{ course.course.description }}
+              </p>
+            </div>
+
           </template>
           <template #footer>
             <div class="flex gap-4 mt-1">
@@ -183,7 +186,7 @@ onMounted(async () => {
 :deep(.p-card-title) {
   background-color: var(--p-button-primary-background);
   padding: 20px;
-  border-radius: var(--p-border-radius-xl) var(--p-border-radius-xl) 0 0 ;
+  border-radius: var(--p-border-radius-xl) var(--p-border-radius-xl) 0 0;
   color: var(--p-content-background);
   height: 100px;
 }

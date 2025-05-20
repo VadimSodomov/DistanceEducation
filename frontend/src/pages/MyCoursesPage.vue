@@ -12,9 +12,11 @@
         <Card class="card">
           <template #title>{{ course.name }}</template>
           <template #content>
-            <p class="m-0">
-              {{ course.description }}
-            </p>
+            <div style="height: 160px; overflow-y: auto; ">
+              <p class="m-0">
+                {{ course.description }}
+              </p>
+            </div>
           </template>
           <template #footer>
             <div class="flex gap-4 mt-1">
@@ -125,7 +127,6 @@ onMounted(async () => {
   align-items: stretch;
   overflow: auto;
   max-height: 70vh;
-  scrollbar-width: thin;
 }
 
 .card {
