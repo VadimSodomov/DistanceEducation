@@ -15,6 +15,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
+/**
+ * Консольная команда для создания пользователя
+ */
 #[AsCommand(
     name: 'create-auth-user',
     description: 'Создать объект AuthUser',
